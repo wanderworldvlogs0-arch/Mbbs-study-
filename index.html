@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>MBBS Study</title>
+<meta name="theme-color" content="#0B1524" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" href="./icon-192.png" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body, #root { height: 100%; margin: 0; }
+  body {
+    background: #0B1524;
+    color: #EDE9DD;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .font-serif { font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #28405F; border-radius: 4px; }
+  input, textarea, button { font-family: inherit; }
+  button { cursor: pointer; border: none; background: none; color: inherit; }
+  @keyframes floatGlow { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-3%, 2%); } }
+  @keyframes bounceDot { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-4px); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ---------- utilities ---------- */
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+const MBBS_SUBJECTS = [
+  "Anatomy", "Physiology", "Biochemistry", "Pathology", "Pharmacology",
+  "Microbiology", "Forensic Medicine & Toxicology", "Community Medicine (PSM)",
+  "ENT", "Ophthalmology", "General Medicine", "General Surgery",
+  "Obstetrics & Gynaecology", "Pediatrics", "Orthopedics", "Dermatology",
+  "Psychiatry", "Anaesthesia", "Radiology"
+];
+
+const SUBJECT_COLORS = [
+  "#2DD4BF", "#F5A524", "#F5527C", "#6EE787", "#A78BFA",
+  "#38BDF8", "#FB923C", "#22D3EE", "#F472B6", "#A3E635"
+];
+const colorFor = (i) => SUBJECT_COLORS[i % SUBJECT_COLORS.length];
+
+const defaultSubjects = () => MBBS_SUBJECTS.map((name) => ({ id: uid(), name, chapters: [] }));
+
+const emptyTopic = (name) => ({
+  id: uid(), name, studied: false, flashcards: [], quiz: [],
+  notes: "", practical: "", videos: [], quizBest: null
+});
+
+const STORAGE_KEY = "mbbs-study-data-v1";
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : defaultSubjects();
+  } catch (e) {
+    return defaultSubjects();
+  }
+}
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
+}
+
+/* ---------- small atoms ---------- */
+function IconBtn({ onClick, children, title, danger }) {
+  return (
+    <button onClick={onClick} title={title}
+      className={`icon-btn ${danger ? "danger" : ""}`}
+      style={{ width: 28, height: 28, borderRadius: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "all .15s" }}>
+      {children}
+    </button>
+  );
+}
+
+function Inline({ placeholder, onSubmit, autoFocus }) {
+  const [v, setV] = useState("");
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); if (v.trim()) { onSubmit(v.trim()); setV(""); } }}
+      style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+      <input autoFocus={autoFocus} value={v} onChange={(e) => setV(e.target.value)} placeholder={placeholder}
+        style={inputStyle(false)} />
+      <button type="submit" style={{ color: "#2DD4BF" }}>+</button>
+    </form>
+  );
+}
+
+const inputStyle = (big) => ({
+  flex: 1, background: "#0F1B2D", border: "1px solid #28405F", borderRadius: 8,
+  padding: big ? "10px 12px" : "6px 8px", fontSize: 14, color: "#EDE9DD", outline: "none", width: "100%"
+});
+
+/* ---------- Tree ---------- */
+function Tree({ subjects, setSubjects, selected, onSelect }) {
+  const [openSubj, setOpenSubj] = useState({});
+  const [openChap, setOpenChap] = useState({});
+  const [addingChap, setAddingChap] = useState(null);
+  const [addingTopic, setAddingTopic] = useState(null);
+  const [addingSubj, setAddingSubj] = useState(false);
+
+  const update = (fn) => { const next = JSON.parse(JSON.stringify(subjects)); fn(next); setSubjects(next); };
+
+  return (
+    <div>
+      {subjects.map((subj, si) => {
+        const color = colorFor(si);
+        const isOpen = openSubj[subj.id];
+        return (
+          <div key={subj.id}>
+            <div style={{ display: "flex", alignItems: "center", borderRadius: 6, background: isOpen ? `${color}14` : "transparent" }}>
+              <button onClick={() => setOpenSubj((s) => ({ ...s, [subj.id]: !isOpen }))}
+                style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, textAlign: "left", padding: "7px 6px" }}>
+                <span style={{ display: "inline-block", transform: isOpen ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform .2s", color: "#9FB0C3" }}>▾</span>
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}99` }} />
+                <span style={{ fontSize: 14, fontWeight: 500, color: "#EDE9DD", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{subj.name}</span>
+              </button>
+              <IconBtn danger title="Delete subject" onClick={() => {
+                if (confirm(`Delete "${subj.name}" and all its content?`)) update((n) => n.splice(n.findIndex((s) => s.id === subj.id), 1));
+              }}>✕</IconBtn>
+            </div>
+
+            {isOpen && (
+              <div style={{ marginLeft: 16, paddingLeft: 8, borderLeft: "1px solid #28405F" }}>
+                {subj.chapters.map((chap) => {
+                  const cOpen = openChap[chap.id];
+                  return (
+                    <div key={chap.id}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <button onClick={() => setOpenChap((s) => ({ ...s, [chap.id]: !cOpen }))}
+                          style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, textAlign: "left", padding: "5px 6px" }}>
+                          <span style={{ fontSize: 11, color: "#9FB0C3" }}>{cOpen ? "▾" : "▸"}</span>
+                          <span style={{ fontSize: 14, color: "#C9D3E0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{chap.name}</span>
+                        </button>
+                        <IconBtn danger title="Delete chapter" onClick={() => {
+                          if (confirm(`Delete chapter "${chap.name}"?`)) update((n) => {
+                            const s = n.find((x) => x.id === subj.id);
+                            s.chapters.splice(s.chapters.findIndex((c) => c.id === chap.id), 1);
+                          });
+                        }}>✕</IconBtn>
+                      </div>
+
+                      {cOpen && (
+                        <div style={{ marginLeft: 16, paddingLeft: 8, borderLeft: "1px solid #223752", padding: "2px 0" }}>
+                          {chap.topics.map((topic, ti) => (
+                            <div key={topic.id} style={{ display: "flex", alignItems: "center" }}>
+                              <button onClick={() => onSelect({ subjId: subj.id, chapId: chap.id, topicId: topic.id })}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 6, flex: 1, textAlign: "left", padding: "5px 6px",
+                                  borderRadius: 6, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                                  background: selected?.topicId === topic.id ? `${color}26` : "transparent",
+                                  color: selected?.topicId === topic.id ? color : "#9FB0C3",
+                                  fontWeight: selected?.topicId === topic.id ? 600 : 400
+                                }}>
+                                <span style={{ color: topic.studied ? "#6EE787" : "#4A5C74" }}>{topic.studied ? "●" : "○"}</span>
+                                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{ti + 1}. {topic.name}</span>
+                              </button>
+                              <IconBtn danger title="Delete topic" onClick={() => {
+                                if (confirm(`Delete topic "${topic.name}"?`)) {
+                                  update((n) => {
+                                    const s = n.find((x) => x.id === subj.id);
+                                    const c = s.chapters.find((x) => x.id === chap.id);
+                                    c.topics.splice(c.topics.findIndex((t) => t.id === topic.id), 1);
+                                  });
+                                  if (selected?.topicId === topic.id) onSelect(null);
+                                }
+                              }}>✕</IconBtn>
+                            </div>
+                          ))}
+                          {addingTopic === chap.id ? (
+                            <Inline autoFocus placeholder="New topic name…" onSubmit={(name) => {
+                              update((n) => {
+                                const s = n.find((x) => x.id === subj.id);
+                                const c = s.chapters.find((x) => x.id === chap.id);
+                                c.topics.push(emptyTopic(name));
+                              });
+                              setAddingTopic(null);
+                            }} />
+                          ) : (
+                            <button onClick={() => setAddingTopic(chap.id)} style={{ fontSize: 12, color: "#5E7690", padding: "5px 6px" }}>+ Add topic</button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {addingChap === subj.id ? (
+                  <Inline autoFocus placeholder="New chapter name…" onSubmit={(name) => {
+                    update((n) => { const s = n.find((x) => x.id === subj.id); s.chapters.push({ id: uid(), name, topics: [] }); });
+                    setAddingChap(null);
+                  }} />
+                ) : (
+                  <button onClick={() => setAddingChap(subj.id)} style={{ fontSize: 12, color: "#5E7690", padding: "5px 6px" }}>+ Add chapter</button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {addingSubj ? (
+        <Inline autoFocus placeholder="New subject name…" onSubmit={(name) => {
+          update((n) => n.push({ id: uid(), name, chapters: [] })); setAddingSubj(false);
+        }} />
+      ) : (
+        <button onClick={() => setAddingSubj(true)} style={{ fontSize: 13, fontWeight: 500, color: "#2DD4BF", padding: "8px 6px", marginTop: 4 }}>+ Add subject</button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Flashcards ---------- */
+function FlashcardsPanel({ topic, color, onUpdate }) {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [front, setFront] = useState("");
+  const [back, setBack] = useState("");
+  const cards = topic.flashcards;
+
+  useEffect(() => { setIdx(0); setFlipped(false); }, [topic.id]);
+
+  const mark = (status) => {
+    const next = [...cards]; next[idx] = { ...next[idx], status };
+    onUpdate({ ...topic, flashcards: next });
+    setFlipped(false);
+    setIdx((i) => (i + 1 < cards.length ? i + 1 : 0));
+  };
+  const addCard = () => {
+    if (!front.trim() || !back.trim()) return;
+    onUpdate({ ...topic, flashcards: [...cards, { id: uid(), front, back, status: "new" }] });
+    setFront(""); setBack(""); setAdding(false);
+  };
+  const known = cards.filter((c) => c.status === "known").length;
+
+  if (cards.length === 0 && !adding) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px 0" }}>
+        <p style={{ fontSize: 14, color: "#7A8CA3", marginBottom: 12 }}>No flashcards yet for this topic.</p>
+        <button onClick={() => setAdding(true)} style={{ fontSize: 14, padding: "8px 16px", borderRadius: 999, fontWeight: 500, background: color, color: "#0F1B2D" }}>+ Add your first flashcard</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 12, color: "#7A8CA3" }}>
+        <span>{cards.length ? `Card ${idx + 1} of ${cards.length}` : "No cards"}</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          {cards.map((c, i) => <span key={c.id} style={{ width: 6, height: 6, borderRadius: "50%", background: i === idx ? color : c.status === "known" ? "#6EE78766" : "#2A3F5C" }} />)}
+          <span style={{ marginLeft: 6, fontWeight: 600, color: "#6EE787" }}>{known}/{cards.length} known</span>
+        </span>
+      </div>
+
+      {cards.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+          <div onClick={() => setFlipped((f) => !f)} style={{ position: "relative", width: "100%", maxWidth: 380, height: 224, cursor: "pointer", perspective: 1000 }}>
+            <div style={{ position: "relative", width: "100%", height: "100%", transition: "transform .5s", transformStyle: "preserve-3d", transform: flipped ? "rotateY(180deg)" : "none" }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: 16, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", backfaceVisibility: "hidden", background: "#F6F3EA", color: "#1A2333", boxShadow: `0 8px 30px -8px ${color}80, 0 0 0 1px ${color}40` }}>
+                <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 8, borderRadius: "16px 16px 0 0", background: `linear-gradient(90deg, ${color}, ${color}99)` }} />
+                <span style={{ position: "absolute", bottom: 12, right: 12, fontSize: 10, textTransform: "uppercase", letterSpacing: .5, color }}>tap to flip</span>
+                <p className="font-serif" style={{ fontSize: 16, lineHeight: 1.4 }}>{cards[idx].front}</p>
+              </div>
+              <div style={{ position: "absolute", inset: 0, borderRadius: 16, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "linear-gradient(155deg,#1E3350,#16263D)", color: "#EDE9DD", boxShadow: `0 8px 30px -8px ${color}80, 0 0 0 1px ${color}40` }}>
+                <p style={{ fontSize: 16, lineHeight: 1.4 }}>{cards[idx].back}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cards.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 24 }}>
+          <button onClick={() => mark("review")} style={{ padding: "9px 20px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#3A2130", color: "#F5527C" }}>↻ Still learning</button>
+          <button onClick={() => mark("known")} style={{ padding: "9px 20px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#1E3B2C", color: "#6EE787" }}>✓ Know it</button>
+        </div>
+      )}
+
+      {adding ? (
+        <div style={{ border: "1px solid #28405F", borderRadius: 10, padding: 12, background: "#0F1B2D" }}>
+          <textarea value={front} onChange={(e) => setFront(e.target.value)} placeholder="Front (question / term)" rows={2} style={{ ...inputStyle(true), marginBottom: 8, resize: "vertical" }} />
+          <textarea value={back} onChange={(e) => setBack(e.target.value)} placeholder="Back (answer / definition)" rows={2} style={{ ...inputStyle(true), marginBottom: 8, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={addCard} style={{ padding: "6px 14px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: color, color: "#0F1B2D" }}>Add card</button>
+            <button onClick={() => setAdding(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, color: "#9FB0C3" }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setAdding(true)} style={{ fontSize: 12, fontWeight: 500, color: "#2DD4BF" }}>+ Add another card</button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Quiz ---------- */
+function QuizPanel({ topic, onUpdate }) {
+  const [adding, setAdding] = useState(false);
+  const [q, setQ] = useState("");
+  const [opts, setOpts] = useState(["", "", "", ""]);
+  const [correct, setCorrect] = useState(0);
+  const [taking, setTaking] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const quiz = topic.quiz;
+
+  const addQ = () => {
+    if (!q.trim() || opts.some((o) => !o.trim())) return;
+    onUpdate({ ...topic, quiz: [...quiz, { id: uid(), q, options: [...opts], correct }] });
+    setQ(""); setOpts(["", "", "", ""]); setCorrect(0); setAdding(false);
+  };
+  const submit = () => {
+    setSubmitted(true);
+    const score = quiz.filter((item) => answers[item.id] === item.correct).length;
+    const pct = Math.round((score / quiz.length) * 100);
+    if (topic.quizBest === null || pct > topic.quizBest) onUpdate({ ...topic, quizBest: pct });
+  };
+  const restart = () => { setTaking(false); setAnswers({}); setSubmitted(false); };
+
+  if (quiz.length === 0 && !adding) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px 0" }}>
+        <p style={{ fontSize: 14, color: "#7A8CA3", marginBottom: 12 }}>No quiz questions yet for this topic.</p>
+        <button onClick={() => setAdding(true)} style={{ fontSize: 14, padding: "8px 16px", borderRadius: 999, fontWeight: 500, background: "#F5A524", color: "#0F1B2D" }}>+ Add your first question</button>
+      </div>
+    );
+  }
+
+  if (taking) {
+    const score = quiz.filter((item) => answers[item.id] === item.correct).length;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {quiz.map((item, i) => (
+          <div key={item.id} style={{ border: "1px solid #28405F", borderRadius: 12, padding: 14, background: "#12213B" }}>
+            <p style={{ fontSize: 14, color: "#EDE9DD", marginBottom: 10, fontWeight: 500 }}>{i + 1}. {item.q}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {item.options.map((opt, oi) => {
+                const isChosen = answers[item.id] === oi;
+                const isCorrect = item.correct === oi;
+                let style = { borderColor: "#28405F", color: "#C9D3E0", background: "transparent" };
+                let icon = "";
+                if (submitted) {
+                  if (isCorrect) { style = { borderColor: "#6EE787", background: "#1E3B2C", color: "#8FD1A8" }; icon = "✓"; }
+                  else if (isChosen) { style = { borderColor: "#F5527C", background: "#3A2130", color: "#F5A0B4" }; icon = "✕"; }
+                } else if (isChosen) style = { borderColor: "#38BDF8", background: "#173044", color: "#7DD3FC" };
+                return (
+                  <button key={oi} disabled={submitted} onClick={() => setAnswers((a) => ({ ...a, [item.id]: oi }))}
+                    style={{ ...style, display: "flex", justifyContent: "space-between", textAlign: "left", fontSize: 14, padding: "9px 12px", borderRadius: 8, border: `1px solid ${style.borderColor}` }}>
+                    <span>{opt}</span><span>{icon}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        {submitted ? (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #28405F", paddingTop: 16 }}>
+            <p style={{ fontSize: 14, color: "#EDE9DD" }}>
+              {score / quiz.length >= 0.8 ? "🎉 " : score / quiz.length >= 0.5 ? "👍 " : "📚 "}
+              Score: <b style={{ color: score / quiz.length >= 0.5 ? "#6EE787" : "#F5A524" }}>{score}/{quiz.length}</b> ({Math.round((score / quiz.length) * 100)}%)
+            </p>
+            <button onClick={restart} style={{ fontSize: 14, padding: "8px 16px", borderRadius: 999, background: "#1E3350", color: "#7FD4CF" }}>↺ Retake</button>
+          </div>
+        ) : (
+          <button onClick={submit} disabled={Object.keys(answers).length < quiz.length}
+            style={{ padding: "10px 20px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#38BDF8", color: "#0F1B2D", opacity: Object.keys(answers).length < quiz.length ? .4 : 1 }}>
+            Submit answers
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <p style={{ fontSize: 12, color: "#7A8CA3" }}>{quiz.length} question{quiz.length !== 1 ? "s" : ""}{topic.quizBest !== null ? ` · best score ${topic.quizBest}%` : ""}</p>
+        {quiz.length > 0 && <button onClick={() => setTaking(true)} style={{ fontSize: 14, padding: "8px 16px", borderRadius: 999, fontWeight: 500, background: "#38BDF8", color: "#0F1B2D" }}>▶ Start quiz</button>}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+        {quiz.map((item, i) => <div key={item.id} style={{ fontSize: 14, color: "#9FB0C3", borderBottom: "1px solid #22354D", paddingBottom: 8 }}>{i + 1}. {item.q}</div>)}
+      </div>
+      {adding ? (
+        <div style={{ border: "1px solid #28405F", borderRadius: 10, padding: 12, background: "#0F1B2D", display: "flex", flexDirection: "column", gap: 8 }}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Question" style={inputStyle(true)} />
+          {opts.map((o, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input type="radio" checked={correct === i} onChange={() => setCorrect(i)} />
+              <input value={o} onChange={(e) => setOpts((arr) => arr.map((x, xi) => (xi === i ? e.target.value : x)))} placeholder={`Option ${i + 1}`} style={inputStyle(true)} />
+            </div>
+          ))}
+          <p style={{ fontSize: 11, color: "#5E7690" }}>Select the radio button next to the correct option.</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={addQ} style={{ padding: "6px 14px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#F5A524", color: "#0F1B2D" }}>Add question</button>
+            <button onClick={() => setAdding(false)} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 14, color: "#9FB0C3" }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setAdding(true)} style={{ fontSize: 12, fontWeight: 500, color: "#F5A524" }}>+ Add question</button>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Notes / Practical / Videos ---------- */
+function TextPanel({ value, placeholder, onSave }) {
+  const [v, setV] = useState(value);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { setV(value); setDirty(false); }, [value]);
+  return (
+    <div>
+      <textarea value={v} onChange={(e) => { setV(e.target.value); setDirty(true); }} placeholder={placeholder} rows={12}
+        style={{ ...inputStyle(true), lineHeight: 1.6, resize: "vertical" }} />
+      {dirty && <button onClick={() => { onSave(v); setDirty(false); }} style={{ marginTop: 8, padding: "7px 16px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#6EE787", color: "#0F1B2D" }}>Save</button>}
+    </div>
+  );
+}
+
+function VideosPanel({ videos, onUpdate }) {
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const add = () => { if (!title.trim() || !url.trim()) return; onUpdate([...videos, { id: uid(), title, url }]); setTitle(""); setUrl(""); };
+  return (
+    <div>
+      {videos.length === 0 ? <p style={{ fontSize: 14, color: "#7A8CA3", marginBottom: 16 }}>No video lectures linked yet.</p> : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+          {videos.map((v) => (
+            <div key={v.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid #28405F", borderRadius: 10, padding: "8px 12px", background: "#12213B" }}>
+              <a href={v.url} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#F472B6", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>▶ {v.title}</a>
+              <IconBtn danger title="Remove" onClick={() => onUpdate(videos.filter((x) => x.id !== v.id))}>✕</IconBtn>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{ border: "1px solid #28405F", borderRadius: 10, padding: 12, background: "#0F1B2D", display: "flex", flexDirection: "column", gap: 8 }}>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Lecture title" style={inputStyle(true)} />
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" style={inputStyle(true)} />
+        <button onClick={add} style={{ padding: "6px 14px", borderRadius: 999, fontSize: 14, fontWeight: 500, background: "#F472B6", color: "#0F1B2D", alignSelf: "flex-start" }}>Add link</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Topic detail ---------- */
+const TABS = [
+  { key: "flash", label: "Flashcards", color: "#2DD4BF" },
+  { key: "quiz", label: "Quiz", color: "#38BDF8" },
+  { key: "notes", label: "Textbook Notes", color: "#A3E635" },
+  { key: "practical", label: "Practical Manual", color: "#A78BFA" },
+  { key: "videos", label: "Video Lectures", color: "#F472B6" }
+];
+
+function TopicDetail({ subj, chap, topic, color, onUpdateTopic }) {
+  const [tab, setTab] = useState("flash");
+  return (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <p style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: .5, color }}>{subj.name} · {chap.name}</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+          <h2 className="font-serif" style={{ fontSize: 20, color: "#EDE9DD" }}>{topic.name}</h2>
+          <label style={{
+            display: "flex", alignItems: "center", gap: 6, fontSize: 12, flexShrink: 0, cursor: "pointer",
+            padding: "4px 10px", borderRadius: 999,
+            border: `1px solid ${topic.studied ? "#6EE78780" : "#28405F"}`,
+            background: topic.studied ? "#6EE78718" : "transparent",
+            color: topic.studied ? "#6EE787" : "#9FB0C3"
+          }}>
+            <input type="checkbox" checked={topic.studied} onChange={(e) => onUpdateTopic({ ...topic, studied: e.target.checked })} />
+            {topic.studied ? "✓ Studied" : "Mark as studied"}
+          </label>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid #22354D", overflowX: "auto" }}>
+        {TABS.map(({ key, label, color: tc }) => (
+          <button key={key} onClick={() => setTab(key)}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", fontSize: 12, fontWeight: 500,
+              whiteSpace: "nowrap", borderBottom: `2px solid ${tab === key ? tc : "transparent"}`,
+              color: tab === key ? tc : "#7A8CA3"
+            }}>{label}</button>
+        ))}
+      </div>
+
+      {tab === "flash" && <FlashcardsPanel topic={topic} color={color} onUpdate={onUpdateTopic} />}
+      {tab === "quiz" && <QuizPanel topic={topic} onUpdate={onUpdateTopic} />}
+      {tab === "notes" && <TextPanel value={topic.notes} placeholder="Type or paste your textbook notes for this topic…" onSave={(v) => onUpdateTopic({ ...topic, notes: v })} />}
+      {tab === "practical" && <TextPanel value={topic.practical} placeholder="Practical manual steps, viva points, specimen notes…" onSave={(v) => onUpdateTopic({ ...topic, practical: v })} />}
+      {tab === "videos" && <VideosPanel videos={topic.videos} onUpdate={(v) => onUpdateTopic({ ...topic, videos: v })} />}
+    </div>
+  );
+}
+
+/* ---------- Dashboard ---------- */
+function StatCard({ label, value, sub, color }) {
+  return (
+    <div style={{ borderRadius: 14, padding: 14, background: `linear-gradient(155deg, ${color}1A, #12213B 65%)`, border: `1px solid ${color}40`, boxShadow: `0 4px 20px -8px ${color}40` }}>
+      <p className="font-serif" style={{ fontSize: 18, color: "#EDE9DD" }}>{value}</p>
+      <p style={{ fontSize: 12, color: "#9FB0C3" }}>{label}</p>
+      <p style={{ fontSize: 11, marginTop: 2, fontWeight: 600, color }}>{sub}</p>
+    </div>
+  );
+}
+
+function Dashboard({ subjects }) {
+  let totalTopics = 0, studiedTopics = 0, totalCards = 0, knownCards = 0, totalQuizTopics = 0, quizScoreSum = 0;
+  subjects.forEach((s) => s.chapters.forEach((c) => c.topics.forEach((t) => {
+    totalTopics++;
+    if (t.studied) studiedTopics++;
+    totalCards += t.flashcards.length;
+    knownCards += t.flashcards.filter((f) => f.status === "known").length;
+    if (t.quizBest !== null) { totalQuizTopics++; quizScoreSum += t.quizBest; }
+  })));
+  const subjectStats = subjects.map((s, si) => {
+    let subTotal = 0, subStudied = 0;
+    s.chapters.forEach((c) => c.topics.forEach((t) => { subTotal++; if (t.studied) subStudied++; }));
+    return { name: s.name, color: colorFor(si), total: subTotal, studied: subStudied };
+  }).filter((s) => s.total > 0);
+  const pct = (a, b) => (b === 0 ? 0 : Math.round((a / b) * 100));
+
+  return (
+    <div>
+      <h2 className="font-serif" style={{ fontSize: 20, color: "#EDE9DD", marginBottom: 4 }}>Progress Overview</h2>
+      <p style={{ fontSize: 14, color: "#7A8CA3", marginBottom: 24 }}>Across all subjects, chapters, and topics.</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12, marginBottom: 32 }}>
+        <StatCard label="Topics studied" value={`${studiedTopics}/${totalTopics}`} sub={`${pct(studiedTopics, totalTopics)}%`} color="#6EE787" />
+        <StatCard label="Flashcards known" value={`${knownCards}/${totalCards}`} sub={`${pct(knownCards, totalCards)}%`} color="#2DD4BF" />
+        <StatCard label="Avg. quiz score" value={totalQuizTopics ? `${Math.round(quizScoreSum / totalQuizTopics)}%` : "—"} sub={`${totalQuizTopics} quizzes taken`} color="#F5A524" />
+        <StatCard label="Topics tracked" value={totalTopics} sub={`${subjects.length} subjects`} color="#A78BFA" />
+      </div>
+      {subjectStats.length === 0 ? (
+        <p style={{ fontSize: 14, color: "#7A8CA3" }}>Add chapters and topics to a subject to start tracking progress here.</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {subjectStats.map((s) => (
+            <div key={s.name}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 4 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, color: "#EDE9DD" }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, boxShadow: `0 0 8px ${s.color}99` }} /> {s.name}
+                </span>
+                <span style={{ fontFamily: "monospace", fontSize: 12, fontWeight: 600, color: s.color }}>{s.studied}/{s.total}</span>
+              </div>
+              <div style={{ height: 8, borderRadius: 999, background: "#1E3350", overflow: "hidden" }}>
+                <div style={{ height: "100%", borderRadius: 999, width: `${pct(s.studied, s.total)}%`, background: `linear-gradient(90deg, ${s.color}, ${s.color}CC)`, boxShadow: `0 0 10px ${s.color}80`, transition: "width .7s ease-out" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- AI Doubt Solver (placeholder — needs your own API key later) ---------- */
+function DoubtSolver() {
+  return (
+    <div>
+      <h2 className="font-serif" style={{ fontSize: 20, color: "#EDE9DD", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+        ✨ AI Doubt Solver
+      </h2>
+      <p style={{ fontSize: 14, color: "#7A8CA3", marginBottom: 20 }}>Not connected yet in this standalone app.</p>
+      <div style={{ border: "1px dashed #28405F", borderRadius: 14, padding: 24, textAlign: "center", background: "#12213B" }}>
+        <p style={{ fontSize: 14, color: "#C9D3E0", marginBottom: 8 }}>This feature needs an Anthropic API key to work outside of Claude's chat interface.</p>
+        <p style={{ fontSize: 13, color: "#7A8CA3" }}>Ask Claude to wire up your key here whenever you're ready — everything else in the app works fully offline in the meantime.</p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- App shell ---------- */
+function App() {
+  const [subjects, setSubjectsState] = useState(loadData);
+  const [selected, setSelected] = useState(null);
+  const [view, setView] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const setSubjects = (next) => { setSubjectsState(next); saveData(next); };
+
+  const onSelectTopic = (sel) => { setSelected(sel); setView(sel ? "topic" : "dashboard"); setSidebarOpen(false); };
+
+  const updateTopic = (updated) => {
+    if (!selected) return;
+    const next = JSON.parse(JSON.stringify(subjects));
+    const s = next.find((x) => x.id === selected.subjId);
+    const c = s.chapters.find((x) => x.id === selected.chapId);
+    const ti = c.topics.findIndex((x) => x.id === selected.topicId);
+    c.topics[ti] = updated;
+    setSubjects(next);
+  };
+
+  let subj, chap, topic, color;
+  if (view === "topic" && selected) {
+    const si = subjects.findIndex((x) => x.id === selected.subjId);
+    subj = subjects[si];
+    chap = subj?.chapters.find((x) => x.id === selected.chapId);
+    topic = chap?.topics.find((x) => x.id === selected.topicId);
+    color = colorFor(si);
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", position: "relative" }}>
+      {/* ambient glows */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -128, left: -128, width: 384, height: 384, borderRadius: "50%", opacity: .12, filter: "blur(60px)", background: "#2DD4BF", animation: "floatGlow 18s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", top: "33%", right: -128, width: 384, height: 384, borderRadius: "50%", opacity: .1, filter: "blur(60px)", background: "#A78BFA", animation: "floatGlow 22s ease-in-out infinite reverse" }} />
+        <div style={{ position: "absolute", bottom: 0, left: "25%", width: 384, height: 384, borderRadius: "50%", opacity: .08, filter: "blur(60px)", background: "#F5A524", animation: "floatGlow 25s ease-in-out infinite" }} />
+      </div>
+
+      {/* top bar */}
+      <div style={{ position: "sticky", top: 0, zIndex: 20, display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: "1px solid #1B2C45", background: "rgba(11,21,36,.9)", backdropFilter: "blur(8px)" }}>
+        <button onClick={() => setSidebarOpen((o) => !o)} className="mobile-menu-btn" style={{ display: "none", fontSize: 18, color: "#9FB0C3" }}>☰</button>
+        <span style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg,#2DD4BF,#38BDF8)", flexShrink: 0 }}>⚕</span>
+        <span className="font-serif" style={{ fontSize: 16, fontWeight: 700, background: "linear-gradient(90deg,#2DD4BF,#A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>MBBS Study</span>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+          <button onClick={() => { setView("dashboard"); setSelected(null); }}
+            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 999, fontWeight: 500, color: view === "dashboard" ? "#0F1B2D" : "#9FB0C3", background: view === "dashboard" ? "linear-gradient(135deg,#2DD4BF,#38BDF8)" : "transparent" }}>Dashboard</button>
+          <button onClick={() => { setView("doubt"); setSelected(null); }}
+            style={{ fontSize: 12, padding: "7px 14px", borderRadius: 999, fontWeight: 500, color: view === "doubt" ? "#0F1B2D" : "#9FB0C3", background: view === "doubt" ? "linear-gradient(135deg,#F5A524,#FB923C)" : "transparent" }}>✨ AI Doubts</button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex" }}>
+        {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", zIndex: 9 }} className="mobile-overlay" />}
+        <div
+          className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}
+          style={{ width: 288, height: "calc(100vh - 57px)", overflowY: "auto", borderRight: "1px solid #1B2C45", background: "#0D1A2E", padding: 12, position: "sticky", top: 57 }}
+        >
+          <Tree subjects={subjects} setSubjects={setSubjects} selected={selected} onSelect={onSelectTopic} />
+        </div>
+        <div style={{ flex: 1, padding: "20px 16px", maxWidth: 760, margin: "0 auto", width: "100%" }}>
+          {view === "dashboard" && <Dashboard subjects={subjects} />}
+          {view === "doubt" && <DoubtSolver />}
+          {view === "topic" && topic && <TopicDetail subj={subj} chap={chap} topic={topic} color={color} onUpdateTopic={updateTopic} />}
+          {view === "topic" && !topic && <p style={{ fontSize: 14, color: "#7A8CA3" }}>This topic couldn't be found — it may have been deleted.</p>}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-menu-btn { display: inline-flex !important; }
+          .sidebar { display: none; }
+          .sidebar-open {
+            display: block !important;
+            position: fixed !important;
+            top: 57px !important;
+            left: 0;
+            z-index: 10;
+            height: calc(100vh - 57px) !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .mobile-overlay { display: none; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
