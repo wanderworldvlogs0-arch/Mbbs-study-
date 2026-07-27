@@ -2,7 +2,7 @@ FROM node:22-slim AS build
 RUN corepack enable
 WORKDIR /app
 COPY . .
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --no-frozen-lockfile --dangerously-allow-all-builds
 RUN pnpm --filter @workspace/web run build
 RUN pnpm --filter @workspace/api-server run build
 
