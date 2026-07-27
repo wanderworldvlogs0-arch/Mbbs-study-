@@ -1,0 +1,424 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: subjects
+    description: Subjects and chapter progress
+  - name: dashboard
+    description: Dashboard summary, goals, and study time
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [auth]
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+      responses:
+        "201":
+          description: Account created, session cookie set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "409":
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /auth/signin:
+    post:
+      operationId: signIn
+      tags: [auth]
+      summary: Sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+      responses:
+        "200":
+          description: Signed in, session cookie set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /auth/logout:
+    post:
+      operationId: logOut
+      tags: [auth]
+      summary: Sign out and clear the session
+      responses:
+        "204":
+          description: Signed out
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the currently signed-in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /subjects:
+    get:
+      operationId: listSubjects
+      tags: [subjects]
+      summary: List all subjects with the current user's progress
+      responses:
+        "200":
+          description: Subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubjectSummary"
+  /subjects/{subjectId}:
+    get:
+      operationId: getSubject
+      tags: [subjects]
+      summary: Get a subject's chapters with the current user's progress
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Subject detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDetail"
+        "404":
+          description: Subject not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /subjects/{subjectId}/chapters/{chapterId}/progress:
+    put:
+      operationId: updateChapterProgress
+      tags: [subjects]
+      summary: Set the current user's progress for a chapter
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProgressRequest"
+      responses:
+        "200":
+          description: Updated chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChapterProgress"
+        "404":
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get today's goals, streak, and study time for the current user
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /dashboard/study-time:
+    post:
+      operationId: addStudyTime
+      tags: [dashboard]
+      summary: Add elapsed seconds to today's study time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddStudyTimeRequest"
+      responses:
+        "200":
+          description: Updated dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /dashboard/goals/increment:
+    post:
+      operationId: incrementGoal
+      tags: [dashboard]
+      summary: Increment today's progress toward one of the daily goals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncrementGoalRequest"
+      responses:
+        "200":
+          description: Updated dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    SignUpRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        academicYear:
+          type: string
+      required:
+        - name
+        - email
+        - password
+    SignInRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        academicYear:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - email
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    SubjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        theme:
+          type: string
+          enum: [preclinical, paraclinical, clinical]
+        icon:
+          type: string
+        chapterCount:
+          type: integer
+        mcqCount:
+          type: integer
+        videoCount:
+          type: integer
+        progressPercent:
+          type: integer
+      required:
+        - id
+        - name
+        - theme
+        - icon
+        - chapterCount
+        - mcqCount
+        - videoCount
+        - progressPercent
+    ChapterProgress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        orderIndex:
+          type: integer
+        subChapterCount:
+          type: integer
+        estimatedMinutes:
+          type: integer
+        progressPercent:
+          type: integer
+      required:
+        - id
+        - title
+        - orderIndex
+        - subChapterCount
+        - estimatedMinutes
+        - progressPercent
+    SubjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/SubjectSummary"
+        - type: object
+          properties:
+            chapters:
+              type: array
+              items:
+                $ref: "#/components/schemas/ChapterProgress"
+          required:
+            - chapters
+    UpdateProgressRequest:
+      type: object
+      properties:
+        progressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+      required:
+        - progressPercent
+    GoalProgress:
+      type: object
+      properties:
+        current:
+          type: integer
+        target:
+          type: integer
+      required:
+        - current
+        - target
+    DashboardSummary:
+      type: object
+      properties:
+        name:
+          type: string
+        streakDays:
+          type: array
+          items:
+            type: boolean
+          minItems: 7
+          maxItems: 7
+        totalStudySeconds:
+          type: integer
+        weekStudySeconds:
+          type: integer
+        todayStudySeconds:
+          type: integer
+        goals:
+          type: object
+          properties:
+            chapters:
+              $ref: "#/components/schemas/GoalProgress"
+            mcqs:
+              $ref: "#/components/schemas/GoalProgress"
+            videos:
+              $ref: "#/components/schemas/GoalProgress"
+          required: [chapters, mcqs, videos]
+      required:
+        - name
+        - streakDays
+        - totalStudySeconds
+        - weekStudySeconds
+        - todayStudySeconds
+        - goals
+    AddStudyTimeRequest:
+      type: object
+      properties:
+        seconds:
+          type: integer
+          minimum: 1
+      required:
+        - seconds
+    IncrementGoalRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [chapters, mcqs, videos]
+      required:
+        - type
+
