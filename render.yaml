@@ -17,6 +17,15 @@ startCommand: pnpm --filter @workspace/api-server run start
         fromDatabase:
           name: medmaster-ai-db
           property: connectionString
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COREPACK_HOME
+        value: /opt/render/project/.corepack
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medmaster-ai-db
+          property: connectionString
 
 databases:
   - name: medmaster-ai-db
