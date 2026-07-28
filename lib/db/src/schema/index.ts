@@ -4,3 +4,5 @@ export * from "./sessions";
 export * from "./subjects";
 export * from "./chapters";
 export * from "./progress";
+export * from "./videos";
+export * from "./pdfs";
