@@ -9,3 +9,5 @@ export * from "./signUpRequest";
 export * from "./signInRequest";
 export * from "./errorResponse";
 export * from "./subject";
+export * from "./video";
+export * from "./pdf";
