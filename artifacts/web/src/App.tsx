@@ -5,6 +5,8 @@ import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { Dashboard } from "./pages/Dashboard";
 import { Subjects } from "./pages/Subjects";
+import { Videos } from "./pages/Videos";
+import { Pdfs } from "./pages/Pdfs";
 
 function ComingSoon() {
   return (
@@ -29,6 +31,16 @@ function App() {
         <Route path="/subjects">
           <ProtectedRoute>
             <Subjects />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/videos">
+          <ProtectedRoute>
+            <Videos />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/pdfs">
+          <ProtectedRoute>
+            <Pdfs />
           </ProtectedRoute>
         </Route>
         <Route path="/coming-soon">
