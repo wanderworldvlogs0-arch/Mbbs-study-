@@ -1,4 +1,4 @@
-import { db, pool, subjectsTable, chaptersTable } from "./index";
+import { db, pool, subjectsTable, chaptersTable, mcqsTable } from "./index";
 
 // Matches artifacts/mockup-sandbox's Subjects.tsx SUBJECTS array exactly.
 const SUBJECTS = [
