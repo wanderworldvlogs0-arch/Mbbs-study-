@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=build /app /app
 ENV NODE_ENV=production
 EXPOSE 10000
-CMD ["sh", "-c", "pnpm --filter @workspace/db run push-force && pnpm --filter @workspace/db run seed && pnpm --filter @workspace/api-server run start"]
+CMD ["sh", "-c", "pnpm --filter @workspace/db run fix-constraint && pnpm --filter @workspace/db run push-force && pnpm --filter @workspace/db run seed && pnpm --filter @workspace/api-server run start"]
