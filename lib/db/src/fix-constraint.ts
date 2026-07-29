@@ -1,3 +1,4 @@
+
 import { pool } from "./index";
 
 async function fixConstraint() {
@@ -8,9 +9,12 @@ async function fixConstraint() {
     `);
     console.log("Constraint added.");
   } catch (err: any) {
-    // 42710 = constraint already exists — safe to ignore, just means it's
-    // already been applied in a previous deploy.
-    if (err.code === "42710") {
+    // Already applied in a previous deploy — safe to ignore. Postgres can
+    // report this under a few different error codes/messages depending on
+    // how the conflict is detected, so match on the message text instead
+    // of a single fixed code.
+    const message = String(err?.message ?? "");
+    if (message.includes("already exists")) {
       console.log("Constraint already exists, skipping.");
     } else {
       console.error(err);
