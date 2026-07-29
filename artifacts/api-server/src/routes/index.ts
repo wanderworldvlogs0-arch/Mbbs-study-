@@ -5,6 +5,7 @@ import subjectsRouter from "./subjects";
 import dashboardRouter from "./dashboard";
 import videosRouter from "./videos";
 import pdfsRouter from "./pdfs";
+import quizRouter from "./quiz";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(subjectsRouter);
 router.use(dashboardRouter);
 router.use(videosRouter);
 router.use(pdfsRouter);
+router.use(quizRouter);
 
 export default router;
