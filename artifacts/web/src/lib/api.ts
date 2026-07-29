@@ -7,6 +7,11 @@ import type {
   DashboardSummary,
   VideoSummary,
   PdfSummary,
+  QuizSubjectOption,
+  QuizAttemptstart,
+  Quizresult,
+  RecentQuizSummary,
+  LeaderboardEntry,
 } from "@workspace/api-zod";
 
 export class ApiError extends Error {
@@ -101,4 +106,21 @@ export const videosApi = {
 export const pdfsApi = {
   list: (subjectId?: string) =>
     request<PdfSummary[]>(subjectId ? `/pdfs?subjectId=${subjectId}` : "/pdfs"),
+};
+export const quizApi = {
+  subjects: () => request<QuizSubjectOption[]>("/quiz/subjects"),
+  start: (subjectId: string, count?: number) =>
+    request<QuizAttemptStart>("/quiz/start", {
+      method: "POST",
+      body: JSON.stringify({ subjectId, count }),
+    }),
+  saveAnswer: (attemptId: string, mcqId: string, selectedOptionId: string | null) =>
+    request<{ ok: boolean }>(`/quiz/${attemptId}/answer`, {
+      method: "PUT",
+      body: JSON.stringify({ mcqId, selectedOptionId }),
+    }),
+  submit: (attemptId: string) =>
+    request<QuizResult>(`/quiz/${attemptId}/submit`, { method: "POST" }),
+  recent: () => request<RecentQuizSummary[]>("/quiz/recent"),
+  leaderboard: () => request<LeaderboardEntry[]>("/quiz/leaderboard"),
 };
