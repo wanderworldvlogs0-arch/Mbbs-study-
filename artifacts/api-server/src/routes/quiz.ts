@@ -175,13 +175,23 @@ router.post("/quiz/:attemptId/submit", async (req, res) => {
       .where(eq(quizAttemptsTable.id, attemptId));
 
     const today = todayDateString();
-    await db
-      .insert(dailyActivityTable)
-      .values({ userId, date: today, mcqsDone: attempt.totalQuestions })
-      .onConflictDoUpdate({
-        target: [dailyActivityTable.userId, dailyActivityTable.date],
-        set: { mcqsDone: sql`${dailyActivityTable.mcqsDone} + ${attempt.totalQuestions}` },
+    try {
+      await db
+        .insert(dailyActivityTable)
+        .values({ userId, date: today, mcqsDone: attempt.totalQuestions })
+        .onConflictDoUpdate({
+          target: [dailyActivityTable.userId, dailyActivityTable.date],
+          set: { mcqsDone: sql`${dailyActivityTable.mcqsDone} + ${attempt.totalQuestions}` },
+        });
+    } catch (err: any) {
+      console.error("DAILY_ACTIVITY_UPSERT_FAILED", {
+        message: err?.message,
+        cause: err?.cause,
+        code: err?.cause?.code ?? err?.code,
+        detail: err?.cause?.detail,
       });
+      throw err;
+    }
   }
 
   res.json({
