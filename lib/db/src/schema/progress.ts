@@ -41,9 +41,7 @@ export const dailyActivityTable = pgTable(
     chaptersDone: integer("chapters_done").notNull().default(0),
     mcqsDone: integer("mcqs_done").notNull().default(0),
     videosDone: integer("videos_done").notNull().default(0),
-  },
-  (table) => [unique().on(table.userId, table.date)],
-);
+  });
 
 export type UserChapterProgress = typeof userChapterProgressTable.$inferSelect;
 export type DailyActivity = typeof dailyActivityTable.$inferSelect;
