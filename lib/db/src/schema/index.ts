@@ -6,3 +6,6 @@ export * from "./chapters";
 export * from "./progress";
 export * from "./videos";
 export * from "./pdfs";
+export * from "./mcqs";
+export * from "./quizAttempts";
+export * from "./quizAnswers";
