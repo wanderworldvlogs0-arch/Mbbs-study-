@@ -173,7 +173,20 @@ async function seed() {
       })),
     )
     .onConflictDoNothing();
-
+console.log("Seeding Anatomy MCQs...");
+  await db
+    .insert(mcqsTable)
+    .values(
+      ANATOMY_MCQS.map((q, i) => ({
+        subjectId: "anatomy",
+        questionText: q.questionText,
+        options: q.options,
+        correctOptionId: q.correctOptionId,
+        explanation: q.explanation,
+        orderIndex: i,
+      })),
+    )
+    .onConflictDoNothing();
   console.log("Done.");
   await pool.end();
 }
