@@ -30,8 +30,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as ErrorResponse | null;
-    throw new ApiError(res.status, body?.message ?? "Something went wrong");
+    const rawText = await res.text().catch(() => "");
+    let message = `HTTP ${res.status}`;
+    try {
+      const body = JSON.parse(rawText) as ErrorResponse;
+      message = body?.message ?? message;
+    } catch {
+      message = `HTTP ${res.status}: ${rawText.slice(0, 200)}`;
+    }
+    throw new ApiError(res.status, message);
   }
 
   if (res.status === 204) return undefined as T;
