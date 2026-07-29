@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, sql, desc, isNotNull } from "drizzle-orm";
+import { eq, and, sql, desc, isNotNull, inArray } from "drizzle-orm";
 import {
   db,
   subjectsTable,
@@ -159,7 +159,7 @@ router.post("/quiz/:attemptId/submit", async (req, res) => {
 
   const mcqIds = answers.map((a) => a.mcqId);
   const mcqs = mcqIds.length
-    ? await db.select().from(mcqsTable).where(sql`${mcqsTable.id} = ANY(${mcqIds})`)
+    ? await db.select().from(mcqsTable).where(inArray(mcqsTable.id, mcqIds))
     : [];
   const mcqById = new Map(mcqs.map((m) => [m.id, m]));
 
