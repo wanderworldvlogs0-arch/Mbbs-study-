@@ -11,3 +11,4 @@ export * from "./errorResponse";
 export * from "./subject";
 export * from "./video";
 export * from "./pdf";
+export * from "./quiz";
