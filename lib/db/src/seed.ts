@@ -38,7 +38,121 @@ const ANATOMY_CHAPTERS = [
   { title: "Abdomen", subChapterCount: 9, estimatedMinutes: 380 },
   { title: "Pelvis", subChapterCount: 4, estimatedMinutes: 170 },
 ];
-
+// Sample MCQs for Anatomy only, to exercise the quiz engine end-to-end.
+// Add more subjects' questions here the same way — this is content-authoring
+// work, not a coding task.
+const ANATOMY_MCQS = [
+  {
+    questionText: "Which bone is commonly known as the collarbone?",
+    options: [
+      { id: "A", text: "Scapula" },
+      { id: "B", text: "Clavicle" },
+      { id: "C", text: "Humerus" },
+      { id: "D", text: "Sternum" },
+    ],
+    correctOptionId: "B",
+    explanation: "The clavicle (collarbone) connects the arm to the trunk of the body.",
+  },
+  {
+    questionText: "The femur is located in which part of the body?",
+    options: [
+      { id: "A", text: "Forearm" },
+      { id: "B", text: "Lower leg" },
+      { id: "C", text: "Thigh" },
+      { id: "D", text: "Foot" },
+    ],
+    correctOptionId: "C",
+    explanation: "The femur is the thigh bone and the longest bone in the human body.",
+  },
+  {
+    questionText: "Which chamber of the heart receives oxygenated blood from the lungs?",
+    options: [
+      { id: "A", text: "Right atrium" },
+      { id: "B", text: "Right ventricle" },
+      { id: "C", text: "Left atrium" },
+      { id: "D", text: "Left ventricle" },
+    ],
+    correctOptionId: "C",
+    explanation: "The left atrium receives oxygenated blood via the pulmonary veins.",
+  },
+  {
+    questionText: "How many pairs of cranial nerves are there?",
+    options: [
+      { id: "A", text: "10" },
+      { id: "B", text: "12" },
+      { id: "C", text: "14" },
+      { id: "D", text: "31" },
+    ],
+    correctOptionId: "B",
+    explanation: "There are 12 pairs of cranial nerves arising directly from the brain.",
+  },
+  {
+    questionText: "Which joint type is the shoulder joint classified as?",
+    options: [
+      { id: "A", text: "Hinge joint" },
+      { id: "B", text: "Pivot joint" },
+      { id: "C", text: "Ball and socket joint" },
+      { id: "D", text: "Saddle joint" },
+    ],
+    correctOptionId: "C",
+    explanation: "The shoulder is a ball and socket joint, allowing a wide range of motion.",
+  },
+  {
+    questionText: "The diaphragm primarily separates which two body cavities?",
+    options: [
+      { id: "A", text: "Thoracic and abdominal" },
+      { id: "B", text: "Abdominal and pelvic" },
+      { id: "C", text: "Cranial and thoracic" },
+      { id: "D", text: "Thoracic and pelvic" },
+    ],
+    correctOptionId: "A",
+    explanation: "The diaphragm separates the thoracic cavity from the abdominal cavity.",
+  },
+  {
+    questionText: "Which muscle is the primary muscle used for breathing?",
+    options: [
+      { id: "A", text: "Deltoid" },
+      { id: "B", text: "Diaphragm" },
+      { id: "C", text: "Trapezius" },
+      { id: "D", text: "Rectus abdominis" },
+    ],
+    correctOptionId: "B",
+    explanation: "The diaphragm contracts and relaxes to drive normal breathing.",
+  },
+  {
+    questionText: "The largest lymphatic vessel in the body is the:",
+    options: [
+      { id: "A", text: "Thoracic duct" },
+      { id: "B", text: "Right lymphatic duct" },
+      { id: "C", text: "Cisterna chyli" },
+      { id: "D", text: "Subclavian vein" },
+    ],
+    correctOptionId: "A",
+    explanation: "The thoracic duct is the largest lymphatic vessel, draining most of the body.",
+  },
+  {
+    questionText: "Which part of the vertebral column has 7 vertebrae?",
+    options: [
+      { id: "A", text: "Thoracic" },
+      { id: "B", text: "Lumbar" },
+      { id: "C", text: "Cervical" },
+      { id: "D", text: "Sacral" },
+    ],
+    correctOptionId: "C",
+    explanation: "The cervical spine consists of 7 vertebrae (C1–C7).",
+  },
+  {
+    questionText: "The kidneys are located in which region of the abdomen?",
+    options: [
+      { id: "A", text: "Anterior abdominal wall" },
+      { id: "B", text: "Retroperitoneal space" },
+      { id: "C", text: "Pelvic cavity" },
+      { id: "D", text: "Peritoneal cavity" },
+    ],
+    correctOptionId: "B",
+    explanation: "The kidneys lie behind the peritoneum, in the retroperitoneal space.",
+  },
+];
 async function seed() {
   console.log("Seeding subjects...");
   await db
