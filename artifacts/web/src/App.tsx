@@ -10,6 +10,8 @@ import { Pdfs } from "./pages/Pdfs";
 import { Quiz } from "./pages/Quiz"; 
 import { Flashcards } from "./pages/Flashcards";
 import { AIDoubtSolver } from "./pages/AIDoubtSolver";
+import { Progress } from "./pages/Progress";
+import { Rewards } from "./pages/Rewards";
 
 function ComingSoon() {
   return (
@@ -59,6 +61,16 @@ function App() {
         <Route path="/ai-solver">
   <ProtectedRoute>
     <AIDoubtSolver />
+  </ProtectedRoute>
+</Route>
+        <Route path="/progress">
+  <ProtectedRoute>
+    <Progress />
+  </ProtectedRoute>
+</Route>
+<Route path="/rewards">
+  <ProtectedRoute>
+    <Rewards />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
