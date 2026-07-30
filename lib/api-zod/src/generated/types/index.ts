@@ -13,3 +13,4 @@ export * from "./video";
 export * from "./pdf";
 export * from "./quiz";
 export * from "./flashcard";
+export * from "./doubtSolver";
