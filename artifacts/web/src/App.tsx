@@ -7,7 +7,8 @@ import { Dashboard } from "./pages/Dashboard";
 import { Subjects } from "./pages/Subjects";
 import { Videos } from "./pages/Videos";
 import { Pdfs } from "./pages/Pdfs";
-import { Quiz } from "./pages/Quiz";        
+import { Quiz } from "./pages/Quiz"; 
+import { Flashcards } from "./pages/Flashcards";
 
 function ComingSoon() {
   return (
