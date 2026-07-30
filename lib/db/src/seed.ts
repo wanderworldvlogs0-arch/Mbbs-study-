@@ -1,4 +1,4 @@
-import { db, pool, subjectsTable, chaptersTable, mcqsTable } from "./index";
+import { db, pool, subjectsTable, chaptersTable, mcqsTable, flashcardsTable } from "./index";
 
 // Matches artifacts/mockup-sandbox's Subjects.tsx SUBJECTS array exactly.
 const SUBJECTS = [
@@ -153,6 +153,38 @@ const ANATOMY_MCQS = [
     explanation: "The kidneys lie behind the peritoneum, in the retroperitoneal space.",
   },
 ];
+const ANATOMY_FLASHCARDS = [
+  {
+    front: "What is the name of the valve between the left atrium and left ventricle?",
+    back: "Mitral Valve (Bicuspid Valve)",
+    mnemonic: "M for Mitral = 2 cusps, on the Left side.",
+    reference: "Gray's Anatomy Ch.4",
+  },
+  {
+    front: "Which nerve is most commonly injured in a fractured surgical neck of humerus?",
+    back: "Axillary nerve (C5, C6)",
+    mnemonic: "Surgical Neck → Axillary Nerve.",
+    reference: "Gray's Anatomy Ch.7",
+  },
+  {
+    front: "What is the vertebral level of the sternal angle (angle of Louis)?",
+    back: "T4-T5 intervertebral disc level",
+    mnemonic: "Louis XIV → L = 4 → T4-T5.",
+    reference: "Gray's Anatomy Ch.5",
+  },
+  {
+    front: "What is the bony landmark at the lower end of the sternum called?",
+    back: "Xiphoid process (Xiphisternum)",
+    mnemonic: "X marks the spot — Xiphoid starts with X.",
+    reference: "Gray's Anatomy Ch.5",
+  },
+  {
+    front: "Where does the thoracic duct terminate?",
+    back: "At the junction of the left subclavian and left internal jugular veins",
+    mnemonic: "Thoracic duct always drains to the LEFT.",
+    reference: "Gray's Anatomy Ch.5",
+  },
+];
 async function seed() {
   console.log("Seeding subjects...");
   await db
@@ -183,6 +215,20 @@ console.log("Seeding Anatomy MCQs...");
         options: q.options,
         correctOptionId: q.correctOptionId,
         explanation: q.explanation,
+        orderIndex: i,
+      })),
+    )
+    .onConflictDoNothing();
+  console.log("Seeding Anatomy flashcards...");
+  await db
+    .insert(flashcardsTable)
+    .values(
+      ANATOMY_FLASHCARDS.map((c, i) => ({
+        subjectId: "anatomy",
+        front: c.front,
+        back: c.back,
+        mnemonic: c.mnemonic,
+        reference: c.reference,
         orderIndex: i,
       })),
     )
