@@ -56,6 +56,11 @@ function App() {
     <Flashcards />
   </ProtectedRoute>
 </Route>
+        <Route path="/ai-solver">
+  <ProtectedRoute>
+    <AIDoubtSolver />
+  </ProtectedRoute>
+</Route>
         <Route path="/coming-soon">
           <ProtectedRoute>
             <ComingSoon />
