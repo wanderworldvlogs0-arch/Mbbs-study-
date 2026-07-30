@@ -32,7 +32,7 @@ const navItems = [
 
 // Only these are actually built so far — everything else in the sidebar
 // still routes to a "coming soon" placeholder rather than a 404.
-const BUILT_PAGES = new Set(["dashboard", "subjects","videos","pdfs","quiz","flashcards","ai-solver"]);
+const BUILT_PAGES = new Set(["dashboard", "subjects","videos","pdfs","quiz","flashcards","ai-solver","progress","rewards"]);
 
 interface SidebarProps {
   collapsed: boolean;
