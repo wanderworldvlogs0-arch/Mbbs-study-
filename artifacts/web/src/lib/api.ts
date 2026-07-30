@@ -15,6 +15,9 @@ import type {
   FlashcardSubjectOption,
   FlashcardSession,
   FlashcardRating,
+  DoubtChatSummary,
+  DoubtChatDetail,
+  SendDoubtMessageResponse,
 } from "@workspace/api-zod";
 
 export class ApiError extends Error {
@@ -144,5 +147,14 @@ export const flashcardsApi = {
     request<{ ok: boolean }>(`/flashcards/${flashcardId}/rate`, {
       method: "PUT",
       body: JSON.stringify({ rating }),
+    }),
+};
+export const doubtSolverApi = {
+  chats: () => request<DoubtChatSummary[]>("/doubt-solver/chats"),
+  chat: (chatId: string) => request<DoubtChatDetail>(`/doubt-solver/chats/${chatId}`),
+  send: (chatId: string | null, message: string) =>
+    request<SendDoubtMessageResponse>("/doubt-solver/send", {
+      method: "POST",
+      body: JSON.stringify({ chatId, message }),
     }),
 };
