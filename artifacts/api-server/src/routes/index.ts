@@ -7,6 +7,7 @@ import videosRouter from "./videos";
 import pdfsRouter from "./pdfs";
 import quizRouter from "./quiz";
 import flashcardsRouter from "./flashcards";
+import doubtSolverRouter from "./doubtSolver";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(videosRouter);
 router.use(pdfsRouter);
 router.use(quizRouter);
 router.use(flashcardsRouter);
+router.use(doubtSolverRouter);
 
 export default router;
