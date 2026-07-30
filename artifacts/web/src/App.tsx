@@ -50,6 +50,11 @@ function App() {
             <Quiz />
           </ProtectedRoute>
         </Route>
+        <Route path="/flashcards">
+  <ProtectedRoute>
+    <Flashcards />
+  </ProtectedRoute>
+</Route>
         <Route path="/coming-soon">
           <ProtectedRoute>
             <ComingSoon />
