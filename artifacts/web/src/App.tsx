@@ -9,6 +9,7 @@ import { Videos } from "./pages/Videos";
 import { Pdfs } from "./pages/Pdfs";
 import { Quiz } from "./pages/Quiz"; 
 import { Flashcards } from "./pages/Flashcards";
+import { AIDoubtSolver } from "./pages/AIDoubtSolver";
 
 function ComingSoon() {
   return (
