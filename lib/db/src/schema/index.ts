@@ -11,3 +11,4 @@ export * from "./quizAttempts";
 export * from "./quizAnswers";
 export * from "./flashcards";
 export * from "./flashcardProgress";
+export * from "./doubtChats";
