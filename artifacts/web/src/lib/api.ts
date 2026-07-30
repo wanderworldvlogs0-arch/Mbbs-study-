@@ -12,6 +12,9 @@ import type {
   Quizresult,
   RecentQuizSummary,
   LeaderboardEntry,
+  FlashcardSubjectOption,
+  FlashcardSession,
+  FlashcardRating,
 } from "@workspace/api-zod";
 
 export class ApiError extends Error {
@@ -130,4 +133,16 @@ export const quizApi = {
     request<QuizResult>(`/quiz/${attemptId}/submit`, { method: "POST" }),
   recent: () => request<RecentQuizSummary[]>("/quiz/recent"),
   leaderboard: () => request<LeaderboardEntry[]>("/quiz/leaderboard"),
+};
+export const flashcardsApi = {
+  subjects: () => request<FlashcardSubjectOption[]>("/flashcards/subjects"),
+  session: (subjectId?: string) =>
+    request<FlashcardSession>(
+      subjectId ? `/flashcards/session?subjectId=${subjectId}` : "/flashcards/session",
+    ),
+  rate: (flashcardId: string, rating: FlashcardRating) =>
+    request<{ ok: boolean }>(`/flashcards/${flashcardId}/rate`, {
+      method: "PUT",
+      body: JSON.stringify({ rating }),
+    }),
 };
