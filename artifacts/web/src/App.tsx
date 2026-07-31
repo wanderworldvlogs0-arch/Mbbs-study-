@@ -76,6 +76,11 @@ function App() {
     <Rewards />
   </ProtectedRoute>
 </Route>
+        <Route path="/search">
+  <ProtectedRoute>
+    <SearchPage />
+  </ProtectedRoute>
+</Route>
         <Route path="/settings">
   <ProtectedRoute>
     <Settings />
