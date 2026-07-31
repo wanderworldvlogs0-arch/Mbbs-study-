@@ -4,24 +4,31 @@ import { useAuth } from "../context/AuthContext";
 
 export function Profile() {
   const { user, updateUser } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-const handlePhotoClick = () => {
-  fileInputRef.current?.click();
-};
-
-const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-
-  if (!file) return;
-
-  alert(`Selected: ${file.name}`);
-};
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [academicYear, setAcademicYear] = useState(user?.academicYear || "");
   const [mobile, setMobile] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+    setPreview(imageUrl);
+
+    alert("Photo selected successfully!");
+  };
 
   const handleSave = () => {
     if (!user) return;
@@ -38,82 +45,114 @@ const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   return (
     <AppLayout>
-      <div className="p-6 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-        <div className="flex flex-col items-center mb-6">
+      <div className="max-w-2xl mx-auto p-6">
 
-  <div className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-blue-500">
-    <span className="text-4xl font-bold text-gray-600">
-      {user?.name?.charAt(0).toUpperCase()}
-    </span>
-  </div>
+        <h1 className="text-3xl font-bold text-center mb-6">
+          My Profile
+        </h1>
 
-  <button
-    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-  >
-    Upload Photo
-  </button>
+        <div className="bg-white rounded-2xl shadow-lg p-6">
 
-</div>
+          <div className="flex flex-col items-center">
 
-        <div className="bg-white rounded-xl shadow-lg p-6 space-y-5">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-600 bg-gray-200 flex items-center justify-center">
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Full Name
-            </label>
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-5xl font-bold text-gray-600">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </span>
+              )}
+
+            </div>
+
+            <button
+              onClick={handlePhotoClick}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+            >
+              Upload Photo
+            </button>
+
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded-lg p-3"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
             />
+
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+          <div className="mt-8 space-y-5">
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Academic Year
-            </label>
-            <input
-              type="text"
-              value={academicYear}
-              onChange={(e) => setAcademicYear(e.target.value)}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+            <div>
+              <label className="block font-medium mb-1">
+                Full Name
+              </label>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Mobile Number
-            </label>
-            <input
-              type="text"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border rounded-lg p-3"
+              />
+            </div>
 
-          <button
-            onClick={handleSave}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
-          >
-            Save Changes
-          </button>
+            <div>
+              <label className="block font-medium mb-1">
+                Email
+              </label>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border rounded-lg p-3"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">
+                Academic Year
+              </label>
+
+              <input
+                type="text"
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                className="w-full border rounded-lg p-3"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">
+                Mobile Number
+              </label>
+
+              <input
+                type="text"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className="w-full border rounded-lg p-3"
+              />
+            </div>
+
+            <button
+              onClick={handleSave}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+            >
+              Save Changes
+            </button>
+
+          </div>
 
         </div>
+
       </div>
     </AppLayout>
   );
