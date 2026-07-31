@@ -1,6 +1,7 @@
 import { AppLayout } from "../components/layout/AppLayout";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 
 export function SearchPage() {
   const [query, setQuery] = useState("");
@@ -52,13 +53,13 @@ export function SearchPage() {
         item.title.toLowerCase().includes(query.toLowerCase())
       )
       .map((item, index) => (
-        <div
-          key={index}
-          className="border rounded-xl p-4 hover:bg-gray-100 cursor-pointer"
-        >
-          <h3 className="font-semibold">{item.title}</h3>
-          <p className="text-sm text-gray-500">{item.type}</p>
-        </div>
+        <Link key={index} href={item.link}>
+  <div className="border rounded-xl p-4 hover:bg-blue-50 hover:border-blue-500 cursor-pointer transition">
+    <h3 className="font-semibold">{item.title}</h3>
+    <p className="text-sm text-gray-500">{item.type}</p>
+  </div>
+</Link>
+        
       ))
   )}
 
