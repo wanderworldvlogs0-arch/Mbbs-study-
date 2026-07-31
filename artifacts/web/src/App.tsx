@@ -12,6 +12,7 @@ import { Flashcards } from "./pages/Flashcards";
 import { AIDoubtSolver } from "./pages/AIDoubtSolver";
 import { Progress } from "./pages/Progress";
 import { Rewards } from "./pages/Rewards";
+import { Settings } from "./pages/Settings";
 
 function ComingSoon() {
   return (
@@ -71,6 +72,11 @@ function App() {
 <Route path="/rewards">
   <ProtectedRoute>
     <Rewards />
+  </ProtectedRoute>
+</Route>
+        <Route path="/settings">
+  <ProtectedRoute>
+    <Settings />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
