@@ -14,6 +14,7 @@ import { Progress } from "./pages/Progress";
 import { Rewards } from "./pages/Rewards";
 import { Settings } from "./pages/Settings";
 import { Profile } from "./pages/Profile";
+import { SearchPage } from "./pages/Search";
 
 function ComingSoon() {
   return (
