@@ -8,4 +8,5 @@ export interface AuthUser {
   name: string;
   email: string;
   academicYear?: string | null;
+  mobileNumber?: string | null;
 }
