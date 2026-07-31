@@ -9,7 +9,7 @@ import {
 import { AppLayout } from "../components/layout/AppLayout";
 import { subjectsApi } from "../lib/api";
 import type { SubjectSummary, SubjectDetail, ChapterProgress } from "@workspace/api-zod";
-
+import { useLocation } from "wouter";
 const ICONS: Record<string, ComponentType<{ size?: number; strokeWidth?: number; className?: string }>> = {
   Bone, Activity, FlaskConical, Microscope, Pill, Bug, Scale, Users, Ear, Eye,
   Stethoscope, Scissors, Baby, Scan, Brain, Radio, Syringe,
@@ -141,6 +141,7 @@ function SubjectGrid({
 }
 
 function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: () => void }) {
+  const [, navigate] = useLocation();
   const [subject, setSubject] = useState<SubjectDetail | null>(null);
   const [activeTab, setActiveTab] = useState("Notes");
 
@@ -263,7 +264,13 @@ function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: (
             </div>
 
             <div className="flex items-center gap-2 lg:gap-3 pl-12 md:pl-0 pt-4 md:pt-0 mt-2 md:mt-0 border-t border-slate-100 md:border-t-0 w-full md:w-auto">
-              <ResourceIcon tooltip="Notes" active={false} icon={<FileText size={18} />} />
+              <div onClick={() => navigate("/notes")}>
+  <ResourceIcon
+    tooltip="Notes"
+    active={true}
+    icon={<FileText size={18} />}
+  />
+</div>
               <ResourceIcon tooltip="Video" active={false} icon={<PlayCircle size={18} />} />
               <ResourceIcon tooltip="Flashcards" active={false} icon={<Layers size={18} />} />
               <ResourceIcon tooltip="MCQs" active={false} icon={<FileQuestion size={18} />} />
