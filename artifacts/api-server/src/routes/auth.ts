@@ -23,10 +23,17 @@ const COOKIE_OPTIONS = {
 
 async function createSessionAndRespond(
   res: import("express").Response,
-  user: { id: string; name: string; email: string; academicYear: string | null },
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    academicYear: string | null;
+    mobileNumber?: string | null;
+  },
   statusCode: number,
 ): Promise<void> {
   const token = generateSessionToken();
+
   await db.insert(sessionsTable).values({
     id: hashSessionToken(token),
     userId: user.id,
@@ -38,21 +45,26 @@ async function createSessionAndRespond(
     maxAge: SESSION_TTL_MS,
   });
 
-  const body = AuthUserSchema.parse({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    academicYear: user.academicYear,
-  });
-  res.status(statusCode).json(body);
+  res.status(statusCode).json(
+    AuthUserSchema.parse({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      academicYear: user.academicYear,
+      mobileNumber: user.mobileNumber,
+    }),
+  );
 }
 
 router.post("/auth/signup", async (req, res) => {
   const parsed = SignUpBody.safeParse(req.body);
+
   if (!parsed.success) {
-    res.status(400).json({ message: parsed.error.issues[0]?.message ?? "Invalid request" });
-    return;
+    return res
+      .status(400)
+      .json({ message: parsed.error.issues[0]?.message ?? "Invalid request" });
   }
+
   const { name, email, password, academicYear } = parsed.data;
 
   const existing = await db
@@ -60,20 +72,27 @@ router.post("/auth/signup", async (req, res) => {
     .from(usersTable)
     .where(eq(usersTable.email, email))
     .limit(1);
+
   if (existing.length > 0) {
-    res.status(409).json({ message: "That email is already registered" });
-    return;
+    return res
+      .status(409)
+      .json({ message: "That email is already registered" });
   }
 
   const passwordHash = await hashPassword(password);
+
   const [user] = await db
     .insert(usersTable)
-    .values({ name, email, passwordHash, academicYear })
+    .values({
+      name,
+      email,
+      passwordHash,
+      academicYear,
+    })
     .returning();
 
   if (!user) {
-    res.status(500).json({ message: "Failed to create account" });
-    return;
+    return res.status(500).json({ message: "Failed to create account" });
   }
 
   await createSessionAndRespond(res, user, 201);
@@ -81,10 +100,11 @@ router.post("/auth/signup", async (req, res) => {
 
 router.post("/auth/signin", async (req, res) => {
   const parsed = SignInBody.safeParse(req.body);
+
   if (!parsed.success) {
-    res.status(400).json({ message: "Invalid request" });
-    return;
+    return res.status(400).json({ message: "Invalid request" });
   }
+
   const { email, password } = parsed.data;
 
   const [user] = await db
@@ -94,8 +114,9 @@ router.post("/auth/signin", async (req, res) => {
     .limit(1);
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    res.status(401).json({ message: "Invalid email or password" });
-    return;
+    return res
+      .status(401)
+      .json({ message: "Invalid email or password" });
   }
 
   await createSessionAndRespond(res, user, 200);
@@ -103,18 +124,44 @@ router.post("/auth/signin", async (req, res) => {
 
 router.post("/auth/logout", async (req, res) => {
   const token = req.cookies?.[SESSION_COOKIE_NAME] as string | undefined;
+
   if (token) {
     await db
       .delete(sessionsTable)
       .where(eq(sessionsTable.id, hashSessionToken(token)));
   }
+
   res.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
   res.status(204).end();
 });
 
+router.put("/auth/profile", requireAuth, async (req, res) => {
+  const { name, email, academicYear, mobileNumber } = req.body;
+
+  const [updatedUser] = await db
+    .update(usersTable)
+    .set({
+      name,
+      email,
+      academicYear,
+      mobileNumber,
+    })
+    .where(eq(usersTable.id, req.user.id))
+    .returning();
+
+  res.json(
+    AuthUserSchema.parse({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      academicYear: updatedUser.academicYear,
+      mobileNumber: updatedUser.mobileNumber,
+    }),
+  );
+});
+
 router.get("/auth/me", requireAuth, (req, res) => {
-  const body = AuthUserSchema.parse(req.user);
-  res.json(body);
+  res.json(AuthUserSchema.parse(req.user));
 });
 
 export default router;
