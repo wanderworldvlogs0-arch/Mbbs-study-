@@ -1,6 +1,8 @@
 import { AppLayout } from "../components/layout/AppLayout";
+import { useAuth } from "../context/AuthContext";
 
 export function Profile() {
+  const { user } = useAuth();
   return (
     <AppLayout>
       <div className="p-6">
