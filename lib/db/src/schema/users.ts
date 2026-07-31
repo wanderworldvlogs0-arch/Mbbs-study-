@@ -8,6 +8,8 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
   academicYear: text("academic_year"),
+  mobileNumber: text("mobile_number"), // <-- নতুন
+
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -18,6 +20,7 @@ export const insertUserSchema = createInsertSchema(usersTable).omit({
   passwordHash: true,
   createdAt: true,
 });
+
 export const selectUserSchema = createSelectSchema(usersTable).omit({
   passwordHash: true,
 });
