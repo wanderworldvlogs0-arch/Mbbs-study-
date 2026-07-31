@@ -1,9 +1,22 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { useAuth } from "../context/AuthContext";
 
 export function Profile() {
   const { user, updateUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+const handlePhotoClick = () => {
+  fileInputRef.current?.click();
+};
+
+const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  alert(`Selected: ${file.name}`);
+};
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
