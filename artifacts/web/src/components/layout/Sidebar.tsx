@@ -122,7 +122,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <p className="text-xs text-slate-400 truncate">{user?.academicYear ?? ""}</p>
             </div>
           )}
-          {!collapsed && <Settings className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+          {!collapsed && (
+  <Link href="/settings">
+    <Settings className="w-4 h-4 text-slate-400 flex-shrink-0 cursor-pointer" />
+  </Link>
+)}
         </div>
       </div>
 
