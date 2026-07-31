@@ -27,6 +27,21 @@ export function Profile() {
     <AppLayout>
       <div className="p-6 max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+        <div className="flex flex-col items-center mb-6">
+
+  <div className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-blue-500">
+    <span className="text-4xl font-bold text-gray-600">
+      {user?.name?.charAt(0).toUpperCase()}
+    </span>
+  </div>
+
+  <button
+    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+  >
+    Upload Photo
+  </button>
+
+</div>
 
         <div className="bg-white rounded-xl shadow-lg p-6 space-y-5">
 
