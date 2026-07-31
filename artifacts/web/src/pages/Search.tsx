@@ -4,6 +4,19 @@ import { useState } from "react";
 
 export function SearchPage() {
   const [query, setQuery] = useState("");
+  const items = [
+  { title: "General Anatomy", type: "Subject", link: "/subjects" },
+  { title: "Upper Limb", type: "Subject", link: "/subjects" },
+  { title: "Thorax", type: "Subject", link: "/subjects" },
+
+  { title: "Cell Injury", type: "PDF", link: "/pdfs" },
+  { title: "Inflammation", type: "PDF", link: "/pdfs" },
+
+  { title: "Heart Physiology", type: "Video", link: "/videos" },
+  { title: "ECG Basics", type: "Video", link: "/videos" },
+
+  { title: "Pharmacology Quiz", type: "Quiz", link: "/quiz" },
+];
 
   return (
     <AppLayout>
@@ -27,13 +40,29 @@ export function SearchPage() {
 
         </div>
 
-        <div className="mt-8 text-gray-500 text-center">
+        <div className="mt-8 space-y-3">
 
-          {query === ""
-            ? "Start typing to search..."
-            : `Searching for "${query}"`}
-
+  {query === "" ? (
+    <p className="text-center text-gray-500">
+      Start typing to search...
+    </p>
+  ) : (
+    items
+      .filter((item) =>
+        item.title.toLowerCase().includes(query.toLowerCase())
+      )
+      .map((item, index) => (
+        <div
+          key={index}
+          className="border rounded-xl p-4 hover:bg-gray-100 cursor-pointer"
+        >
+          <h3 className="font-semibold">{item.title}</h3>
+          <p className="text-sm text-gray-500">{item.type}</p>
         </div>
+      ))
+  )}
+
+</div>
 
       </div>
     </AppLayout>
