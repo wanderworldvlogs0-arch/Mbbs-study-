@@ -15,6 +15,7 @@ import { Rewards } from "./pages/Rewards";
 import { Settings } from "./pages/Settings";
 import { Profile } from "./pages/Profile";
 import { SearchPage } from "./pages/Search";
+import { Notes } from "./pages/Notes";
 
 function ComingSoon() {
   return (
@@ -89,6 +90,11 @@ function App() {
         <Route path="/profile">
   <ProtectedRoute>
     <Profile />
+  </ProtectedRoute>
+</Route>
+        <Route path="/notes">
+  <ProtectedRoute>
+    <Notes />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
