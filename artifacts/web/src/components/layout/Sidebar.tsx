@@ -112,7 +112,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Bottom: user */}
       <div className="p-3 border-t border-slate-100">
-        <div className="flex items-center gap-3">
+        <Link href="/profile" className="flex items-center gap-3 flex-1">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
             {user?.name?.[0]?.toUpperCase() ?? "?"}
           </div>
@@ -127,7 +127,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     <Settings className="w-4 h-4 text-slate-400 flex-shrink-0 cursor-pointer" />
   </Link>
 )}
-        </div>
+        </Link>
       </div>
 
       {/* Collapse button */}
