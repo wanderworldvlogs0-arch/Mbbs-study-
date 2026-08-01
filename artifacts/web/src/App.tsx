@@ -16,6 +16,8 @@ import { Settings } from "./pages/Settings";
 import { Profile } from "./pages/Profile";
 import { SearchPage } from "./pages/Search";
 import { Notes } from "./pages/Notes";
+import { Terms } from "./pages/Terms";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 
 function ComingSoon() {
   return (
@@ -95,6 +97,16 @@ function App() {
         <Route path="/notes">
   <ProtectedRoute>
     <Notes />
+  </ProtectedRoute>
+</Route>
+        <Route path="/terms">
+  <ProtectedRoute>
+    <Terms />
+  </ProtectedRoute>
+</Route>
+<Route path="/privacy-policy">
+  <ProtectedRoute>
+    <PrivacyPolicy />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
