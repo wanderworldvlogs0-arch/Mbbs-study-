@@ -159,7 +159,40 @@ router.put("/auth/profile", requireAuth, async (req, res) => {
     }),
   );
 });
+router.put("/auth/change-password", requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
 
+  if (!currentPassword || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Current and new password are required" });
+  }
+
+  if (newPassword.length < 8) {
+    return res
+      .status(400)
+      .json({ message: "New password must be at least 8 characters" });
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user.id))
+    .limit(1);
+
+  if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+    return res.status(401).json({ message: "Current password is incorrect" });
+  }
+
+  const newPasswordHash = await hashPassword(newPassword);
+
+  await db
+    .update(usersTable)
+    .set({ passwordHash: newPasswordHash })
+    .where(eq(usersTable.id, req.user.id));
+
+  res.status(200).json({ message: "Password updated successfully" });
+});
 router.get("/auth/me", requireAuth, (req, res) => {
   res.json(AuthUserSchema.parse(req.user));
 });
