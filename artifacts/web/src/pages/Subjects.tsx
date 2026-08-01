@@ -4,7 +4,7 @@ import {
   Bone, Activity, FlaskConical, Microscope, Pill, Bug, Scale, Users, Ear, Eye,
   Stethoscope, Scissors, Baby, Scan, Brain, Radio, Syringe,
   ChevronLeft, Search, FileText, PlayCircle, Layers, FileQuestion, BookOpen, Clock,
-  CheckCircle2, Circle, Filter,
+  CheckCircle2, Circle, Filter, Bookmark,
 } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { subjectsApi } from "../lib/api";
@@ -144,6 +144,7 @@ function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: (
   const [, navigate] = useLocation();
   const [subject, setSubject] = useState<SubjectDetail | null>(null);
   const [activeTab, setActiveTab] = useState("Notes");
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
 
   useEffect(() => {
     setSubject(null);
@@ -151,6 +152,13 @@ function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: (
   }, [subjectId]);
 
   const handleToggleChapter = async (chapter: ChapterProgress) => {
+    const toggleBookmark = (chapterId: string) => {
+  setBookmarks((prev) =>
+    prev.includes(chapterId)
+      ? prev.filter((id) => id !== chapterId)
+      : [...prev, chapterId]
+  );
+};
     if (!subject) return;
     const nextPercent = chapter.progressPercent >= 100 ? 0 : 100;
     const updated = await subjectsApi.setChapterProgress(subjectId, chapter.id, nextPercent);
