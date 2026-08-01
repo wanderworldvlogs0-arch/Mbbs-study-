@@ -1,16 +1,16 @@
-href={built ? item.href : "/coming-soon"}
+const linkClass = active
+                    ? "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium bg-blue-50 text-blue-700"
+                    : "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900";
+                  return (
+                    <Link
+                      key={item.id}
+                      href={built ? item.href : "/coming-soon"}
                       onClick={onMobileClose}
-                      className={
-                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium
-                        ${active
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        }
-                      }
+                      className={linkClass}
                       title={collapsed ? item.label : undefined}
                     >
                       <Icon
-                        className={w-4.5 h-4.5 flex-shrink-0 ${active ? "text-blue-600" : ""}}
+                        className={active ? "w-4.5 h-4.5 flex-shrink-0 text-blue-600" : "w-4.5 h-4.5 flex-shrink-0"}
                         style={{ width: 18, height: 18 }}
                       />
                       {!collapsed && <span>{item.label}</span>}
