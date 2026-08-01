@@ -18,6 +18,9 @@ import { SearchPage } from "./pages/Search";
 import { Notes } from "./pages/Notes";
 import { Terms } from "./pages/Terms";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { Notifications } from "./pages/Notifications";
+import { Language } from "./pages/Language";
+import { ContactSupport } from "./pages/ContactSupport";
 
 function ComingSoon() {
   return (
@@ -107,6 +110,21 @@ function App() {
 <Route path="/privacy-policy">
   <ProtectedRoute>
     <PrivacyPolicy />
+  </ProtectedRoute>
+</Route>
+        <Route path="/notifications">
+  <ProtectedRoute>
+    <Notifications />
+  </ProtectedRoute>
+</Route>
+<Route path="/language">
+  <ProtectedRoute>
+    <Language />
+  </ProtectedRoute>
+</Route>
+<Route path="/support">
+  <ProtectedRoute>
+    <ContactSupport />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
