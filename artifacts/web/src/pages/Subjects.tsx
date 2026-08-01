@@ -264,7 +264,7 @@ function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: (
             </div>
 
             <div className="flex items-center gap-2 lg:gap-3 pl-12 md:pl-0 pt-4 md:pt-0 mt-2 md:mt-0 border-t border-slate-100 md:border-t-0 w-full md:w-auto">
-              <div onClick={() => navigate("/notes")}>
+              <div onClick={() => navigate(`/notes?subject=${subject.id}`)}>
   <ResourceIcon
     tooltip="Notes"
     active={true}
