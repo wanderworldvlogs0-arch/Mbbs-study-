@@ -8,7 +8,7 @@ export function Profile() {
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [academicYear, setAcademicYear] = useState(user?.academicYear || "");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(user?.mobileNumber || "");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -30,15 +30,25 @@ export function Profile() {
     alert("Photo selected successfully!");
   };
 
-  const handleSave = () => {
-    if (!user) return;
+  const [saving, setSaving] = useState(false);
 
-    updateUser({
-      ...user,
-      name,
-      email,
-      academicYear,
-    });
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      await updateUser({
+        name,
+        email,
+        academicYear,
+        mobileNumber: mobile,
+      });
+      alert("Profile updated successfully!");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
 
     alert("Profile updated successfully!");
   };
@@ -146,7 +156,13 @@ export function Profile() {
               onClick={handleSave}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
             >
-              Save Changes
+              <button
+  onClick={handleSave}
+  disabled={saving}
+  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-lg font-semibold"
+>
+  {saving ? "Saving…" : "Save Changes"}
+</button>
             </button>
 
           </div>
