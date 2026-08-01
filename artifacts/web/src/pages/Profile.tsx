@@ -50,9 +50,6 @@ export function Profile() {
     }
   };
 
-    alert("Profile updated successfully!");
-  };
-
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto p-6">
@@ -154,15 +151,10 @@ export function Profile() {
 
             <button
               onClick={handleSave}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+              disabled={saving}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-lg font-semibold"
             >
-              <button
-  onClick={handleSave}
-  disabled={saving}
-  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-lg font-semibold"
->
-  {saving ? "Saving…" : "Save Changes"}
-</button>
+              {saving ? "Saving…" : "Save Changes"}
             </button>
 
           </div>
