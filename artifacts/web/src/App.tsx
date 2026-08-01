@@ -21,6 +21,8 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { Notifications } from "./pages/Notifications";
 import { Language } from "./pages/Language";
 import { ContactSupport } from "./pages/ContactSupport";
+import { PrivacySecurity } from "./pages/PrivacySecurity";
+import { Subscription } from "./pages/Subscription";
 
 function ComingSoon() {
   return (
@@ -125,6 +127,16 @@ function App() {
 <Route path="/support">
   <ProtectedRoute>
     <ContactSupport />
+  </ProtectedRoute>
+</Route>
+        <Route path="/privacy-security">
+  <ProtectedRoute>
+    <PrivacySecurity />
+  </ProtectedRoute>
+</Route>
+<Route path="/subscription">
+  <ProtectedRoute>
+    <Subscription />
   </ProtectedRoute>
 </Route>
         <Route path="/coming-soon">
