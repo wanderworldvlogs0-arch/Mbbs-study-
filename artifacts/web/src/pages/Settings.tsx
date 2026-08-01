@@ -43,8 +43,8 @@ export function Settings() {
     { label: "💳 Subscription", action: () => navigate("/coming-soon") },
     { label: "📞 Contact Support", action: () => navigate("/coming-soon") },
     { label: "⭐ Rate App", action: () => window.open("https://play.google.com/store", "_blank") },
-    { label: "📄 Terms & Conditions", action: () => navigate("/coming-soon") },
-    { label: "🔐 Privacy Policy", action: () => navigate("/coming-soon") },
+    { label: "📄 Terms & Conditions", action: () => navigate("/terms") },
+    { label: "🔐 Privacy Policy", action: () => navigate("/privacy-policy") },
     { label: "🚪 Logout", action: handleLogout },
   ];
 
