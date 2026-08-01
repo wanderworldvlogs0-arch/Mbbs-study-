@@ -1,4 +1,5 @@
 import { AppLayout } from "../components/layout/AppLayout";
+import { useLocation } from "wouter";
 
 export function Notes() {
   return (
