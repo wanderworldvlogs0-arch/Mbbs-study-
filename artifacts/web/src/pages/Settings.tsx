@@ -1,19 +1,55 @@
+
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
 
 export function Settings() {
+  const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
+
+  // App load hole localStorage theke dark mode preference check kora
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode") === "true";
+    setDarkMode(saved);
+    document.documentElement.classList.toggle("dark", saved);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newValue = !darkMode;
+    setDarkMode(newValue);
+    localStorage.setItem("darkMode", String(newValue));
+    document.documentElement.classList.toggle("dark", newValue);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Backend e logout call (token invalidate korar jonno, jodi lagey)
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // cookie-based session hole
+      });
+    } catch (err) {
+      console.error("Logout API error:", err);
+    } finally {
+      // Local token/session clear
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  };
+
   const items = [
-    "👤 Edit Profile",
-    "🌙 Dark Mode",
-    "🔔 Notifications",
-    "🌐 Language",
-    "🔒 Privacy & Security",
-    "🔑 Change Password",
-    "💳 Subscription",
-    "📞 Contact Support",
-    "⭐ Rate App",
-    "📄 Terms & Conditions",
-    "🔐 Privacy Policy",
-    "🚪 Logout",
+    { label: "👤 Edit Profile", action: () => navigate("/profile/edit") },
+    { label: darkMode ? "☀️ Light Mode" : "🌙 Dark Mode", action: toggleDarkMode },
+    { label: "🔔 Notifications", action: () => navigate("/settings/notifications") },
+    { label: "🌐 Language", action: () => navigate("/settings/language") },
+    { label: "🔒 Privacy & Security", action: () => navigate("/settings/privacy") },
+    { label: "🔑 Change Password", action: () => navigate("/settings/change-password") },
+    { label: "💳 Subscription", action: () => navigate("/settings/subscription") },
+    { label: "📞 Contact Support", action: () => navigate("/support") },
+    { label: "⭐ Rate App", action: () => window.open("https://play.google.com/store", "_blank") },
+    { label: "📄 Terms & Conditions", action: () => navigate("/terms") },
+    { label: "🔐 Privacy Policy", action: () => navigate("/privacy-policy") },
+    { label: "🚪 Logout", action: handleLogout },
   ];
 
   return (
@@ -25,9 +61,10 @@ export function Settings() {
           {items.map((item, index) => (
             <button
               key={index}
+              onClick={item.action}
               className="w-full text-left px-5 py-4 border-b last:border-b-0 hover:bg-blue-50 transition"
             >
-              {item}
+              {item.label}
             </button>
           ))}
         </div>
