@@ -19,7 +19,12 @@ interface AuthContextValue {
     academicYear?: string;
   }) => Promise<void>;
   signOut: () => Promise<void>;
-  updateUser: (user: AuthUser) => void;
+  updateUser: (data: {
+    name: string;
+    email: string;
+    academicYear?: string | null;
+    mobileNumber?: string | null;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -56,8 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  const updateUser = (updatedUser: AuthUser) => {
-    setUser(updatedUser);
+  const updateUser = async (data: {
+    name: string;
+    email: string;
+    academicYear?: string | null;
+    mobileNumber?: string | null;
+  }) => {
+    const updated = await authApi.updateProfile(data);
+    setUser(updated);
   };
 
   return (
