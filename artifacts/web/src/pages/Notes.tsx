@@ -11,9 +11,13 @@ const subjectId = params.get("subject");
     <AppLayout>
       <div className="max-w-6xl mx-auto p-6">
 
-        <h1 className="text-3xl font-bold mb-6">
-          Notes
-        </h1>
+        <h1 className="text-3xl font-bold mb-2">
+  Notes
+</h1>
+
+<p className="text-gray-500 mb-6">
+  Subject ID : {subjectId}
+</p>
 
         <div className="grid gap-4">
 
