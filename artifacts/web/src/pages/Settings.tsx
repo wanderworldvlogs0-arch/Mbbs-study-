@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { AppLayout } from "../components/layout/AppLayout";
 
 export function Settings() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [darkMode, setDarkMode] = useState(false);
 
   // App load hole localStorage theke dark mode preference check kora
