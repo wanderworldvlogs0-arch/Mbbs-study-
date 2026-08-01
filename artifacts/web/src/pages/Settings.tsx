@@ -6,7 +6,6 @@ export function Settings() {
   const [, navigate] = useLocation();
   const [darkMode, setDarkMode] = useState(false);
 
-  // App load hole localStorage theke dark mode preference check kora
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
@@ -22,32 +21,30 @@ export function Settings() {
 
   const handleLogout = async () => {
     try {
-      // Backend e logout call (token invalidate korar jonno, jodi lagey)
       await fetch("/api/auth/logout", {
         method: "POST",
-        credentials: "include", // cookie-based session hole
+        credentials: "include",
       });
     } catch (err) {
       console.error("Logout API error:", err);
     } finally {
-      // Local token/session clear
       localStorage.removeItem("token");
-      navigate("/login");
+      navigate("/signin");
     }
   };
 
   const items = [
-    { label: "👤 Edit Profile", action: () => navigate("/profile/edit") },
+    { label: "👤 Edit Profile", action: () => navigate("/profile") },
     { label: darkMode ? "☀️ Light Mode" : "🌙 Dark Mode", action: toggleDarkMode },
-    { label: "🔔 Notifications", action: () => navigate("/settings/notifications") },
-    { label: "🌐 Language", action: () => navigate("/settings/language") },
-    { label: "🔒 Privacy & Security", action: () => navigate("/settings/privacy") },
-    { label: "🔑 Change Password", action: () => navigate("/settings/change-password") },
-    { label: "💳 Subscription", action: () => navigate("/settings/subscription") },
-    { label: "📞 Contact Support", action: () => navigate("/support") },
+    { label: "🔔 Notifications", action: () => navigate("/coming-soon") },
+    { label: "🌐 Language", action: () => navigate("/coming-soon") },
+    { label: "🔒 Privacy & Security", action: () => navigate("/coming-soon") },
+    { label: "🔑 Change Password", action: () => navigate("/coming-soon") },
+    { label: "💳 Subscription", action: () => navigate("/coming-soon") },
+    { label: "📞 Contact Support", action: () => navigate("/coming-soon") },
     { label: "⭐ Rate App", action: () => window.open("https://play.google.com/store", "_blank") },
-    { label: "📄 Terms & Conditions", action: () => navigate("/terms") },
-    { label: "🔐 Privacy Policy", action: () => navigate("/privacy-policy") },
+    { label: "📄 Terms & Conditions", action: () => navigate("/coming-soon") },
+    { label: "🔐 Privacy Policy", action: () => navigate("/coming-soon") },
     { label: "🚪 Logout", action: handleLogout },
   ];
 
