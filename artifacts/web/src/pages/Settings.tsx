@@ -39,7 +39,7 @@ export function Settings() {
     { label: "🔔 Notifications", action: () => navigate("/notifications") },
     { label: "🌐 Language", action: () => navigate("/language") },
     { label: "🔒 Privacy & Security", action: () => navigate("/privacy-security") },
-    { label: "🔑 Change Password", action: () => navigate("/coming-soon") },
+    { label: "🔑 Change Password", action: () => navigate("/change-password") },
     { label: "💳 Subscription", action: () => navigate("/subscription") },
     { label: "📞 Contact Support", action: () => navigate("/support") },
     { label: "⭐ Rate App", action: () => window.open("https://play.google.com/store", "_blank") },
