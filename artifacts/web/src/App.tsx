@@ -23,6 +23,7 @@ import { Language } from "./pages/Language";
 import { ContactSupport } from "./pages/ContactSupport";
 import { PrivacySecurity } from "./pages/PrivacySecurity";
 import { Subscription } from "./pages/Subscription";
+import { ChangePassword } from "./pages/ChangePassword";
 
 function ComingSoon() {
   return (
@@ -139,6 +140,11 @@ function App() {
     <Subscription />
   </ProtectedRoute>
 </Route>
+        <Route path="/change-password">
+        <ProtectedRoute>
+          <ChangePassword />
+        </ProtectedRoute>
+        </Route>
         <Route path="/coming-soon">
           <ProtectedRoute>
             <ComingSoon />
