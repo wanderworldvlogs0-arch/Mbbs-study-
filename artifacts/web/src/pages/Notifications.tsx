@@ -28,14 +28,18 @@ export function Notifications() {
               <span>{t.label}</span>
               <button
                 onClick={() => t.setter(!t.value)}
-                className={w-12 h-6 rounded-full transition ${
-                  t.value ? "bg-blue-600" : "bg-slate-300"
-                }}
+                className={
+                  t.value
+                    ? "w-12 h-6 rounded-full transition bg-blue-600"
+                    : "w-12 h-6 rounded-full transition bg-slate-300"
+                }
               >
                 <div
-                  className={w-5 h-5 bg-white rounded-full shadow transform transition ${
-                    t.value ? "translate-x-6" : "translate-x-1"
-                  }}
+                  className={
+                    t.value
+                      ? "w-5 h-5 bg-white rounded-full shadow transform transition translate-x-6"
+                      : "w-5 h-5 bg-white rounded-full shadow transform transition translate-x-1"
+                  }
                 />
               </button>
             </div>
