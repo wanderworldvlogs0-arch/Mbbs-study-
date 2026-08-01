@@ -2,6 +2,11 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { useLocation } from "wouter";
 
 export function Notes() {
+  const [location] = useLocation();
+
+const params = new URLSearchParams(location.split("?")[1]);
+
+const subjectId = params.get("subject");
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto p-6">
