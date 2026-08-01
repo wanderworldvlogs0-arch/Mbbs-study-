@@ -72,6 +72,17 @@ export const authApi = {
   logout: () => request<void>("/auth/logout", { method: "POST" }),
 
   me: () => request<AuthUser>("/auth/me"),
+
+  updateProfile: (data: {
+    name: string;
+    email: string;
+    academicYear?: string | null;
+    mobileNumber?: string | null;
+  }) =>
+    request<AuthUser>("/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
 };
 
 export const subjectsApi = {
