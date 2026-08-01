@@ -1,47 +1,72 @@
 import { AppLayout } from "../components/layout/AppLayout";
 import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
+import { subjectsApi } from "../lib/api";
+import type { SubjectDetail } from "@workspace/api-zod";
 
 export function Notes() {
   const [location] = useLocation();
 
-const params = new URLSearchParams(location.split("?")[1]);
+  const params = new URLSearchParams(location.split("?")[1]);
+  const subjectId = params.get("subject");
 
-const subjectId = params.get("subject");
+  const [subject, setSubject] = useState<SubjectDetail | null>(null);
+
+  useEffect(() => {
+    if (!subjectId) return;
+
+    subjectsApi
+      .get(subjectId)
+      .then(setSubject)
+      .catch(() => setSubject(null));
+  }, [subjectId]);
+
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto p-6">
 
         <h1 className="text-3xl font-bold mb-2">
-  Notes
-</h1>
+          Notes
+        </h1>
 
-<p className="text-gray-500 mb-6">
-  Subject ID : {subjectId}
-</p>
+        <p className="text-gray-500 mb-6">
+          {subject ? subject.name : "Loading..."}
+        </p>
 
-        <div className="grid gap-4">
-
-          <div className="border rounded-xl p-5 hover:shadow-lg cursor-pointer">
-            <h2 className="text-xl font-semibold">
-              General Anatomy
-            </h2>
-
-            <p className="text-gray-500 mt-2">
-              15 Chapters
-            </p>
+        {!subject && (
+          <div className="text-center text-gray-500 py-10">
+            Loading...
           </div>
+        )}
 
-          <div className="border rounded-xl p-5 hover:shadow-lg cursor-pointer">
-            <h2 className="text-xl font-semibold">
-              General Physiology
-            </h2>
+        {subject && (
+          <div className="grid gap-4">
 
-            <p className="text-gray-500 mt-2">
-              20 Chapters
-            </p>
+            {subject.chapters.map((chapter, index) => (
+
+              <div
+                key={chapter.id}
+                className="border rounded-xl p-5 hover:shadow-lg cursor-pointer transition"
+              >
+
+                <h2 className="text-xl font-semibold">
+                  Chapter {index + 1} : {chapter.title}
+                </h2>
+
+                <p className="text-gray-500 mt-2">
+                  {chapter.subChapterCount} Topics
+                </p>
+
+                <p className="text-gray-500">
+                  Progress : {chapter.progressPercent}%
+                </p>
+
+              </div>
+
+            ))}
+
           </div>
-
-        </div>
+        )}
 
       </div>
     </AppLayout>
