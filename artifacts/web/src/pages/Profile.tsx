@@ -93,15 +93,15 @@ export function Profile() {
     <AppLayout>
       <div className="max-w-2xl mx-auto p-6">
 
-        <h1 className="text-3xl font-bold text-center mb-6">
+        <h1 className="text-3xl font-bold text-center mb-6 text-slate-900 dark:text-slate-100">
           My Profile
         </h1>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
 
           <div className="flex flex-col items-center">
 
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-600 bg-gray-200 flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-600 bg-gray-200 dark:bg-slate-700 flex items-center justify-center">
 
               {photo ? (
                 <img
@@ -110,7 +110,7 @@ export function Profile() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-5xl font-bold text-gray-600">
+                <span className="text-5xl font-bold text-gray-600 dark:text-slate-300">
                   {user?.name?.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -137,7 +137,7 @@ export function Profile() {
           <div className="mt-8 space-y-5">
 
             <div>
-              <label className="block font-medium mb-1">
+              <label className="block font-medium mb-1 text-slate-700 dark:text-slate-300">
                 Full Name
               </label>
 
@@ -145,12 +145,12 @@ export function Profile() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border rounded-lg p-3"
+                className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-lg p-3"
               />
             </div>
 
             <div>
-              <label className="block font-medium mb-1">
+              <label className="block font-medium mb-1 text-slate-700 dark:text-slate-300">
                 Email
               </label>
 
@@ -158,12 +158,12 @@ export function Profile() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border rounded-lg p-3"
+                className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-lg p-3"
               />
             </div>
 
             <div>
-              <label className="block font-medium mb-1">
+              <label className="block font-medium mb-1 text-slate-700 dark:text-slate-300">
                 Academic Year
               </label>
 
@@ -171,12 +171,12 @@ export function Profile() {
                 type="text"
                 value={academicYear}
                 onChange={(e) => setAcademicYear(e.target.value)}
-                className="w-full border rounded-lg p-3"
+                className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-lg p-3"
               />
             </div>
 
             <div>
-              <label className="block font-medium mb-1">
+              <label className="block font-medium mb-1 text-slate-700 dark:text-slate-300">
                 Mobile Number
               </label>
 
@@ -184,14 +184,14 @@ export function Profile() {
                 type="text"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                className="w-full border rounded-lg p-3"
+                className="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-lg p-3"
               />
             </div>
 
             <button
               onClick={handleSave}
               disabled={saving}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-lg font-semibold"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white py-3 rounded-lg font-semibold"
             >
               {saving ? "Saving…" : "Save Changes"}
             </button>
@@ -203,4 +203,4 @@ export function Profile() {
       </div>
     </AppLayout>
   );
-      }
+}
