@@ -25,16 +25,16 @@ export function Notes() {
     <AppLayout>
       <div className="max-w-6xl mx-auto p-6">
 
-        <h1 className="text-3xl font-bold mb-2">
+        <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-slate-100">
           Notes
         </h1>
 
-        <p className="text-gray-500 mb-6">
+        <p className="text-gray-500 dark:text-slate-400 mb-6">
           {subject ? subject.name : "Loading..."}
         </p>
 
         {!subject && (
-          <div className="text-center text-gray-500 py-10">
+          <div className="text-center text-gray-500 dark:text-slate-400 py-10">
             Loading...
           </div>
         )}
@@ -46,18 +46,18 @@ export function Notes() {
 
               <div
                 key={chapter.id}
-                className="border rounded-xl p-5 hover:shadow-lg cursor-pointer transition"
+                className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-5 hover:shadow-lg cursor-pointer transition"
               >
 
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Chapter {index + 1} : {chapter.title}
                 </h2>
 
-                <p className="text-gray-500 mt-2">
+                <p className="text-gray-500 dark:text-slate-400 mt-2">
                   {chapter.subChapterCount} Topics
                 </p>
 
-                <p className="text-gray-500">
+                <p className="text-gray-500 dark:text-slate-400">
                   Progress : {chapter.progressPercent}%
                 </p>
 
