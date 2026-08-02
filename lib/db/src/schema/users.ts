@@ -9,6 +9,7 @@ export const usersTable = pgTable("users", {
   name: text("name").notNull(),
   academicYear: text("academic_year"),
   mobileNumber: text("mobile_number"), // <-- নতুন
+  profilePhoto: text("profile_photo"), // base64 image data, <-- নতুন
 
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
