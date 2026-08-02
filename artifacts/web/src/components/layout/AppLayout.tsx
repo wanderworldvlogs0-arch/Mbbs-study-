@@ -30,7 +30,7 @@ export function AppLayout({ children, pageTitle }: AppLayoutProps) {
   }, []);
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-['Inter']">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden font-['Inter']">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -43,7 +43,7 @@ export function AppLayout({ children, pageTitle }: AppLayoutProps) {
           streakCount={streakCount}
           onMenuClick={() => setMobileMenuOpen(true)}
         />
-        <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">{children}</main>
       </div>
     </div>
   );
