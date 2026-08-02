@@ -2,6 +2,43 @@ import { useRef, useState } from "react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { useAuth } from "../context/AuthContext";
 
+function compressImage(file: File, maxSize = 300): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas not supported"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = () => reject(new Error("Invalid image"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function Profile() {
   const { user, updateUser } = useAuth();
 
@@ -9,25 +46,26 @@ export function Profile() {
   const [email, setEmail] = useState(user?.email || "");
   const [academicYear, setAcademicYear] = useState(user?.academicYear || "");
   const [mobile, setMobile] = useState(user?.mobileNumber || "");
+  const [photo, setPhoto] = useState<string | null>(user?.profilePhoto || null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handlePhotoChange = (
+  const handlePhotoChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
-    setPreview(imageUrl);
-
-    alert("Photo selected successfully!");
+    try {
+      const compressed = await compressImage(file);
+      setPhoto(compressed);
+    } catch {
+      alert("Could not process that image. Please try another one.");
+    }
   };
 
   const [saving, setSaving] = useState(false);
@@ -41,6 +79,7 @@ export function Profile() {
         email,
         academicYear,
         mobileNumber: mobile,
+        profilePhoto: photo,
       });
       alert("Profile updated successfully!");
     } catch (err) {
@@ -64,9 +103,9 @@ export function Profile() {
 
             <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-600 bg-gray-200 flex items-center justify-center">
 
-              {preview ? (
+              {photo ? (
                 <img
-                  src={preview}
+                  src={photo}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -164,4 +203,4 @@ export function Profile() {
       </div>
     </AppLayout>
   );
-}
+      }
