@@ -138,7 +138,7 @@ router.post("/auth/logout", async (req, res) => {
 });
 
 router.put("/auth/profile", requireAuth, async (req, res) => {
-  const { name, email, academicYear, mobileNumber } = req.body;
+  const { name, email, academicYear, mobileNumber, profilePhoto } = req.body;
 
   const [updatedUser] = await db
     .update(usersTable)
@@ -147,17 +147,19 @@ router.put("/auth/profile", requireAuth, async (req, res) => {
       email,
       academicYear,
       mobileNumber,
+      profilePhoto,
     })
-    .where(eq(usersTable.id, req.user.id))
+    .where(eq(usersTable.id, req.user!.id))
     .returning();
 
   res.json(
     AuthUserSchema.parse({
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      academicYear: updatedUser.academicYear,
-      mobileNumber: updatedUser.mobileNumber,
+      id: updatedUser!.id,
+      name: updatedUser!.name,
+      email: updatedUser!.email,
+      academicYear: updatedUser!.academicYear,
+      mobileNumber: updatedUser!.mobileNumber,
+      profilePhoto: updatedUser!.profilePhoto,
     }),
   );
 });
