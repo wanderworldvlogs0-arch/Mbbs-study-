@@ -1,3 +1,4 @@
+import { sql, eq } from "drizzle-orm";
 import { db, pool, subjectsTable, chaptersTable, mcqsTable, flashcardsTable } from "./index";
 
 // Matches artifacts/mockup-sandbox's Subjects.tsx SUBJECTS array exactly.
@@ -192,10 +193,18 @@ async function seed() {
     .values(SUBJECTS.map((s) => ({ ...s })))
     .onConflictDoNothing();
 
-  console.log("Seeding Anatomy chapters...");
-  await db
-    .insert(chaptersTable)
-    .values(
+  // chapters/mcqs/flashcards use a random-uuid primary key, so
+  // onConflictDoNothing() never fires for them — without this guard,
+  // every deploy (which re-runs this script) would insert the fixed
+  // Anatomy demo rows again and again. Only seed each once.
+  const [{ count: chapterCount }] = await db
+    .select({ count: sql<number>`count(*)`.mapWith(Number) })
+    .from(chaptersTable)
+    .where(eq(chaptersTable.subjectId, "anatomy"));
+
+  if (chapterCount === 0) {
+    console.log("Seeding Anatomy chapters...");
+    await db.insert(chaptersTable).values(
       ANATOMY_CHAPTERS.map((c, i) => ({
         subjectId: "anatomy",
         title: c.title,
@@ -203,12 +212,19 @@ async function seed() {
         subChapterCount: c.subChapterCount,
         estimatedMinutes: c.estimatedMinutes,
       })),
-    )
-    .onConflictDoNothing();
-console.log("Seeding Anatomy MCQs...");
-  await db
-    .insert(mcqsTable)
-    .values(
+    );
+  } else {
+    console.log("Anatomy chapters already seeded, skipping.");
+  }
+
+  const [{ count: mcqCount }] = await db
+    .select({ count: sql<number>`count(*)`.mapWith(Number) })
+    .from(mcqsTable)
+    .where(eq(mcqsTable.subjectId, "anatomy"));
+
+  if (mcqCount === 0) {
+    console.log("Seeding Anatomy MCQs...");
+    await db.insert(mcqsTable).values(
       ANATOMY_MCQS.map((q, i) => ({
         subjectId: "anatomy",
         questionText: q.questionText,
@@ -217,12 +233,19 @@ console.log("Seeding Anatomy MCQs...");
         explanation: q.explanation,
         orderIndex: i,
       })),
-    )
-    .onConflictDoNothing();
-  console.log("Seeding Anatomy flashcards...");
-  await db
-    .insert(flashcardsTable)
-    .values(
+    );
+  } else {
+    console.log("Anatomy MCQs already seeded, skipping.");
+  }
+
+  const [{ count: flashcardCount }] = await db
+    .select({ count: sql<number>`count(*)`.mapWith(Number) })
+    .from(flashcardsTable)
+    .where(eq(flashcardsTable.subjectId, "anatomy"));
+
+  if (flashcardCount === 0) {
+    console.log("Seeding Anatomy flashcards...");
+    await db.insert(flashcardsTable).values(
       ANATOMY_FLASHCARDS.map((c, i) => ({
         subjectId: "anatomy",
         front: c.front,
@@ -231,8 +254,10 @@ console.log("Seeding Anatomy MCQs...");
         reference: c.reference,
         orderIndex: i,
       })),
-    )
-    .onConflictDoNothing();
+    );
+  } else {
+    console.log("Anatomy flashcards already seeded, skipping.");
+  }
   console.log("Done.");
   await pool.end();
 }
