@@ -78,6 +78,7 @@ export const authApi = {
     email: string;
     academicYear?: string | null;
     mobileNumber?: string | null;
+    profilePhoto?: string | null;
   }) =>
     request<AuthUser>("/auth/profile", {
       method: "PUT",
