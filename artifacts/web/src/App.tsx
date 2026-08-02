@@ -24,6 +24,7 @@ import { ContactSupport } from "./pages/ContactSupport";
 import { PrivacySecurity } from "./pages/PrivacySecurity";
 import { Subscription } from "./pages/Subscription";
 import { ChangePassword } from "./pages/ChangePassword";
+import { Admin } from "./pages/Admin";
 
 function ComingSoon() {
   return (
@@ -144,6 +145,11 @@ function App() {
         <ProtectedRoute>
           <ChangePassword />
         </ProtectedRoute>
+        </Route>
+        <Route path="/admin">
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
         </Route>
         <Route path="/coming-soon">
           <ProtectedRoute>
