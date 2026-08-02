@@ -118,9 +118,17 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
 
         <div className="p-3 border-t border-slate-100">
           <Link href="/profile" onClick={onMobileClose} className="flex items-center gap-3 flex-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-              {user?.name?.[0]?.toUpperCase() ?? "?"}
-            </div>
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+  {user?.profilePhoto ? (
+    <img
+      src={user.profilePhoto}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span>{user?.name?.[0]?.toUpperCase() ?? "?"}</span>
+  )}
+</div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate">{user?.name}</p>
