@@ -170,3 +170,82 @@ export const doubtSolverApi = {
       body: JSON.stringify({ chatId, message }),
     }),
 };
+
+// ---------------- Admin (content upload) ----------------
+export interface AdminVideo {
+  id: string;
+  subjectId: string;
+  title: string;
+  url: string;
+  durationMinutes: number;
+}
+export interface AdminPdf {
+  id: string;
+  subjectId: string;
+  title: string;
+  url: string;
+  pageCount: number;
+  category: "notes" | "pyq";
+  year: string | null;
+}
+export interface AdminFlashcard {
+  id: string;
+  subjectId: string;
+  front: string;
+  back: string;
+  mnemonic: string | null;
+  reference: string | null;
+}
+export interface AdminMcq {
+  id: string;
+  subjectId: string;
+  questionText: string;
+  options: { id: string; text: string }[];
+  correctOptionId: string;
+  explanation: string | null;
+}
+export interface AdminContent {
+  videos: AdminVideo[];
+  pdfs: AdminPdf[];
+  flashcards: AdminFlashcard[];
+  mcqs: AdminMcq[];
+}
+
+export const adminApi = {
+  check: () => request<{ isAdmin: boolean }>("/admin/check"),
+
+  content: (subjectId: string) =>
+    request<AdminContent>(`/admin/content?subjectId=${subjectId}`),
+
+  addVideo: (data: { subjectId: string; title: string; url: string; durationMinutes?: number }) =>
+    request<AdminVideo>("/admin/videos", { method: "POST", body: JSON.stringify(data) }),
+  deleteVideo: (id: string) => request<void>(`/admin/videos/${id}`, { method: "DELETE" }),
+
+  addPdf: (data: {
+    subjectId: string;
+    title: string;
+    url: string;
+    pageCount?: number;
+    category: "notes" | "pyq";
+    year?: string;
+  }) => request<AdminPdf>("/admin/pdfs", { method: "POST", body: JSON.stringify(data) }),
+  deletePdf: (id: string) => request<void>(`/admin/pdfs/${id}`, { method: "DELETE" }),
+
+  addFlashcard: (data: {
+    subjectId: string;
+    front: string;
+    back: string;
+    mnemonic?: string;
+    reference?: string;
+  }) => request<AdminFlashcard>("/admin/flashcards", { method: "POST", body: JSON.stringify(data) }),
+  deleteFlashcard: (id: string) => request<void>(`/admin/flashcards/${id}`, { method: "DELETE" }),
+
+  addMcq: (data: {
+    subjectId: string;
+    questionText: string;
+    options: { id: string; text: string }[];
+    correctOptionId: string;
+    explanation?: string;
+  }) => request<AdminMcq>("/admin/mcqs", { method: "POST", body: JSON.stringify(data) }),
+  deleteMcq: (id: string) => request<void>(`/admin/mcqs/${id}`, { method: "DELETE" }),
+};
