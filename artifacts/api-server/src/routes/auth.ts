@@ -29,6 +29,7 @@ async function createSessionAndRespond(
     email: string;
     academicYear: string | null;
     mobileNumber?: string | null;
+    profilePhoto?: string | null;
   },
   statusCode: number,
 ): Promise<void> {
