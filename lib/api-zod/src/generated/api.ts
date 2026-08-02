@@ -25,6 +25,8 @@ export const AuthUserSchema = zod.object({
   name: zod.string(),
   email: zod.string().email(),
   academicYear: zod.string().nullish(),
+  mobileNumber: zod.string().nullish(),
+  profilePhoto: zod.string().nullish(),
 });
 
 export const ErrorResponseSchema = zod.object({
