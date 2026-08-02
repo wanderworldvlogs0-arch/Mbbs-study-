@@ -66,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string;
     academicYear?: string | null;
     mobileNumber?: string | null;
+    profilePhoto?: string | null;
   }) => {
     const updated = await authApi.updateProfile(data);
     setUser(updated);
