@@ -76,44 +76,44 @@ function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) 
   return (
     <div className="p-5 md:p-8 max-w-7xl mx-auto flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Quiz Zone</h1>
-        <p className="text-slate-500 mt-1.5 text-sm md:text-base">Test your knowledge, track your growth</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Quiz Zone</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1.5 text-sm md:text-base">Test your knowledge, track your growth</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
-              <h2 className="text-lg font-bold text-slate-900">Subject-wise Quizzes</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-4">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Subject-wise Quizzes</h2>
               <div className="relative w-56">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   placeholder="Search subjects..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
             <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto">
-              {subjects === null && <div className="text-slate-400 text-sm py-8 text-center col-span-2">Loading…</div>}
+              {subjects === null && <div className="text-slate-400 dark:text-slate-500 text-sm py-8 text-center col-span-2">Loading…</div>}
               {subjects !== null && filtered.length === 0 && (
-                <div className="text-slate-400 text-sm py-8 text-center col-span-2">No subjects found.</div>
+                <div className="text-slate-400 dark:text-slate-500 text-sm py-8 text-center col-span-2">No subjects found.</div>
               )}
               {filtered.map((sub) => (
                 <div
                   key={sub.id}
-                  className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:border-blue-200 hover:bg-blue-50 transition-colors group"
+                  className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 hover:border-blue-200 dark:hover:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group"
                 >
                   <div>
-                    <span className="font-medium text-slate-800">{sub.name}</span>
-                    <p className="text-xs text-slate-400 mt-0.5">{sub.mcqCount} questions available</p>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{sub.name}</span>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{sub.mcqCount} questions available</p>
                   </div>
                   <button
                     onClick={() => handleStart(sub.id)}
                     disabled={sub.mcqCount === 0 || starting === sub.id}
-                    className="bg-blue-600 disabled:bg-slate-300 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-1 flex-shrink-0 ml-3"
+                    className="bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-1 flex-shrink-0 ml-3"
                   >
                     {starting === sub.id ? "Starting…" : <>Start <Play className="w-3 h-3" /></>}
                   </button>
@@ -124,24 +124,24 @@ function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) 
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-900">Recent Quizzes</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Recent Quizzes</h2>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-700">
               {recent.length === 0 && (
-                <div className="p-5 text-sm text-slate-400 text-center">No quizzes taken yet.</div>
+                <div className="p-5 text-sm text-slate-400 dark:text-slate-500 text-center">No quizzes taken yet.</div>
               )}
               {recent.map((q) => (
                 <div key={q.attemptId} className="p-4 flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-sm text-slate-900">{q.subjectName}</h4>
-                    <p className="text-xs text-slate-500">{new Date(q.submittedAt).toLocaleDateString()}</p>
+                    <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100">{q.subjectName}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(q.submittedAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center gap-2 justify-end mb-1">
-                      <span className="text-sm font-bold text-slate-700">{q.correctCount}/{q.totalQuestions}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${q.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{q.correctCount}/{q.totalQuestions}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${q.passed ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400"}`}>
                         {q.accuracyPercent}%
                       </span>
                     </div>
@@ -151,26 +151,26 @@ function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) 
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-slate-100 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              <h2 className="text-lg font-bold text-slate-900">Leaderboard</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Leaderboard</h2>
             </div>
             <div className="p-3">
               {leaderboard.length === 0 && (
-                <div className="p-4 text-sm text-slate-400 text-center">No scores yet.</div>
+                <div className="p-4 text-sm text-slate-400 dark:text-slate-500 text-center">No scores yet.</div>
               )}
               {leaderboard.map((lb) => (
-                <div key={lb.userId} className={`flex items-center p-3 rounded-xl mb-1 ${lb.isUser ? "bg-blue-50 border border-blue-100" : ""}`}>
-                  <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mr-3">
+                <div key={lb.userId} className={`flex items-center p-3 rounded-xl mb-1 ${lb.isUser ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800" : ""}`}>
+                  <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center text-xs font-bold mr-3">
                     {lb.rank}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-900">
-                      {lb.name} {lb.isUser && <span className="text-xs font-normal text-blue-600 ml-1">(You)</span>}
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {lb.name} {lb.isUser && <span className="text-xs font-normal text-blue-600 dark:text-blue-400 ml-1">(You)</span>}
                     </p>
                   </div>
-                  <div className="font-bold text-blue-600 text-sm">{lb.totalCorrect}</div>
+                  <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">{lb.totalCorrect}</div>
                 </div>
               ))}
             </div>
@@ -230,32 +230,32 @@ function ActiveQuiz({
   const ss = (elapsedSec % 60).toString().padStart(2, "0");
 
   return (
-    <div className="h-full flex flex-col bg-slate-50">
-      <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
+    <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
-          <button onClick={onQuit} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 text-slate-500">
+          <button onClick={onQuit} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
             <XCircle className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="font-bold text-slate-900">{attempt.subjectName}</h2>
-            <p className="text-xs text-slate-500 font-medium">Question {current + 1} of {attempt.questions.length}</p>
+            <h2 className="font-bold text-slate-900 dark:text-slate-100">{attempt.subjectName}</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Question {current + 1} of {attempt.questions.length}</p>
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full font-mono font-bold">
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-full font-mono font-bold">
             <Clock className="w-4 h-4" /> {mm}:{ss}
           </div>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm"
           >
             {submitting ? "Submitting…" : "Submit Quiz"}
           </button>
         </div>
       </div>
 
-      <div className="w-full h-1.5 bg-slate-200 shrink-0">
+      <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 shrink-0">
         <div
           className="h-full bg-blue-500 transition-all duration-500"
           style={{ width: `${((current + 1) / attempt.questions.length) * 100}%` }}
@@ -266,10 +266,10 @@ function ActiveQuiz({
         <div className="flex-1 overflow-y-auto p-8 flex justify-center">
           <div className="max-w-3xl w-full flex flex-col gap-8 pb-20">
             <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 shrink-0 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg">
+              <div className="w-10 h-10 shrink-0 rounded-2xl bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-lg">
                 {current + 1}
               </div>
-              <h3 className="text-2xl font-semibold text-slate-900 leading-relaxed">{question.questionText}</h3>
+              <h3 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 leading-relaxed">{question.questionText}</h3>
             </div>
 
             <div className="grid grid-cols-1 gap-4 mt-4">
@@ -280,37 +280,37 @@ function ActiveQuiz({
                     key={opt.id}
                     onClick={() => selectOption(opt.id)}
                     className={`w-full text-left p-6 rounded-2xl border-2 transition-all group relative overflow-hidden ${
-                      selected ? "border-blue-600 bg-blue-50 shadow-md" : "border-slate-200 bg-white hover:border-blue-300"
+                      selected ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-md" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300 dark:hover:border-blue-700"
                     }`}
                   >
                     {selected && <div className="absolute inset-y-0 left-0 w-1.5 bg-blue-600" />}
                     <div className="flex items-center gap-4">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${selected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${selected ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}>
                         {opt.id}
                       </div>
-                      <span className={`text-lg font-medium ${selected ? "text-blue-900" : "text-slate-700"}`}>{opt.text}</span>
+                      <span className={`text-lg font-medium ${selected ? "text-blue-900 dark:text-blue-300" : "text-slate-700 dark:text-slate-300"}`}>{opt.text}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="flex items-center justify-between pt-8 border-t border-slate-200 mt-4">
+            <div className="flex items-center justify-between pt-8 border-t border-slate-200 dark:border-slate-700 mt-4">
               <button
                 onClick={() => setCurrent((c) => Math.max(0, c - 1))}
                 disabled={current === 0}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-200 disabled:opacity-40"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
               <div className="flex items-center gap-3">
-                <button onClick={skip} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-500 hover:bg-slate-200">
+                <button onClick={skip} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700">
                   Skip <SkipForward className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setCurrent((c) => Math.min(attempt.questions.length - 1, c + 1))}
                   disabled={current === attempt.questions.length - 1}
-                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold disabled:opacity-40"
+                  className="flex items-center gap-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white px-6 py-2.5 rounded-xl font-bold disabled:opacity-40"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -319,16 +319,16 @@ function ActiveQuiz({
           </div>
         </div>
 
-        <div className="w-72 bg-white border-l border-slate-200 p-6 flex flex-col shrink-0">
-          <h3 className="font-bold text-slate-900 mb-4">Question Navigator</h3>
+        <div className="w-72 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 p-6 flex flex-col shrink-0">
+          <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4">Question Navigator</h3>
           <div className="grid grid-cols-5 gap-2 mb-8">
             {attempt.questions.map((q, i) => {
               const ans = answers[q.mcqId];
               const isCurrent = i === current;
-              let cls = "bg-slate-100 text-slate-500 hover:bg-slate-200";
-              if (isCurrent) cls = "ring-2 ring-blue-600 bg-blue-100 text-blue-700";
+              let cls = "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600";
+              if (isCurrent) cls = "ring-2 ring-blue-600 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400";
               else if (ans != null) cls = "bg-blue-600 text-white";
-              else if (ans === null && q.mcqId in answers) cls = "bg-amber-100 text-amber-700";
+              else if (ans === null && q.mcqId in answers) cls = "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400";
               return (
                 <button key={q.mcqId} onClick={() => setCurrent(i)} className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${cls}`}>
                   {i + 1}
@@ -336,10 +336,10 @@ function ActiveQuiz({
               );
             })}
           </div>
-          <div className="mt-auto space-y-3 text-sm text-slate-600">
+          <div className="mt-auto space-y-3 text-sm text-slate-600 dark:text-slate-300">
             <div className="flex items-center gap-3"><div className="w-4 h-4 rounded bg-blue-600" /> Answered ({answeredCount})</div>
-            <div className="flex items-center gap-3"><div className="w-4 h-4 rounded bg-amber-100" /> Skipped ({skippedCount})</div>
-            <div className="flex items-center gap-3"><div className="w-4 h-4 rounded bg-slate-100" /> Unseen ({attempt.questions.length - answeredCount - skippedCount})</div>
+            <div className="flex items-center gap-3"><div className="w-4 h-4 rounded bg-amber-100 dark:bg-amber-900/40" /> Skipped ({skippedCount})</div>
+            <div className="flex items-center gap-3"><div className="w-4 h-4 rounded bg-slate-100 dark:bg-slate-700" /> Unseen ({attempt.questions.length - answeredCount - skippedCount})</div>
           </div>
         </div>
       </div>
@@ -358,23 +358,23 @@ function QuizResultsView({ result, onBack }: { result: QuizResult; onBack: () =>
     <div className="p-5 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Quiz Results</h1>
-          <p className="text-slate-500 mt-1">{result.subjectName}</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Quiz Results</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">{result.subjectName}</p>
         </div>
-        <button onClick={onBack} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl">
+        <button onClick={onBack} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl">
           Back to Hub
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden">
           <div className={`absolute top-0 inset-x-0 h-2 ${result.passed ? "bg-green-500" : "bg-rose-500"}`} />
-          <h2 className={`font-bold text-xl mb-6 ${result.passed ? "text-green-600" : "text-rose-600"}`}>
+          <h2 className={`font-bold text-xl mb-6 ${result.passed ? "text-green-600 dark:text-green-400" : "text-rose-600 dark:text-rose-400"}`}>
             {result.passed ? "Good Performance!" : "Needs Review"}
           </h2>
           <div className="relative w-48 h-48 mb-6">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100" />
+              <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100 dark:text-slate-700" />
               <circle
                 cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="12" fill="transparent"
                 strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
@@ -382,49 +382,49 @@ function QuizResultsView({ result, onBack }: { result: QuizResult; onBack: () =>
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-5xl font-black text-slate-900 tracking-tighter">
-                {result.accuracyPercent}<span className="text-2xl text-slate-400">%</span>
+              <span className="text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tighter">
+                {result.accuracyPercent}<span className="text-2xl text-slate-400 dark:text-slate-500">%</span>
               </span>
-              <span className="text-sm font-bold text-slate-500 mt-1">{result.correctCount} / {result.totalQuestions}</span>
+              <span className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">{result.correctCount} / {result.totalQuestions}</span>
             </div>
           </div>
           <button
             onClick={() => setShowReview((v) => !v)}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
+            className="w-full bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"
           >
             <Eye className="w-4 h-4" /> {showReview ? "Hide Review" : "Review Answers"}
           </button>
         </div>
 
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-center">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
             <CheckCircle2 className="w-8 h-8 text-green-500 mb-3" />
-            <div className="text-3xl font-black text-slate-900 mb-1">{result.correctCount}</div>
-            <div className="text-sm font-medium text-slate-500">Correct</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-1">{result.correctCount}</div>
+            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Correct</div>
           </div>
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-center">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
             <XCircle className="w-8 h-8 text-rose-500 mb-3" />
-            <div className="text-3xl font-black text-slate-900 mb-1">{incorrectCount}</div>
-            <div className="text-sm font-medium text-slate-500">Incorrect</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-1">{incorrectCount}</div>
+            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Incorrect</div>
           </div>
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-center">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
             <SkipForward className="w-8 h-8 text-amber-500 mb-3" />
-            <div className="text-3xl font-black text-slate-900 mb-1">{skippedCount}</div>
-            <div className="text-sm font-medium text-slate-500">Skipped</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-1">{skippedCount}</div>
+            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Skipped</div>
           </div>
         </div>
       </div>
 
       {showReview && (
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-bold text-slate-800">Answer Review</h2>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Answer Review</h2>
           {result.answers.map((a, idx) => (
-            <div key={a.mcqId} className="bg-white border border-slate-200 rounded-2xl p-5">
+            <div key={a.mcqId} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
               <div className="flex items-start gap-3 mb-3">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${a.isCorrect ? "bg-green-100 text-green-700" : "bg-rose-100 text-rose-700"}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${a.isCorrect ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400" : "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400"}`}>
                   {idx + 1}
                 </div>
-                <p className="font-semibold text-slate-800">{a.questionText}</p>
+                <p className="font-semibold text-slate-800 dark:text-slate-100">{a.questionText}</p>
               </div>
               <div className="flex flex-col gap-2 ml-10">
                 {a.options.map((opt) => {
@@ -434,9 +434,9 @@ function QuizResultsView({ result, onBack }: { result: QuizResult; onBack: () =>
                     <div
                       key={opt.id}
                       className={`px-4 py-2 rounded-lg text-sm border ${
-                        isCorrectOpt ? "bg-green-50 border-green-200 text-green-800 font-semibold"
-                          : isSelected ? "bg-rose-50 border-rose-200 text-rose-800"
-                          : "border-slate-100 text-slate-600"
+                        isCorrectOpt ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-400 font-semibold"
+                          : isSelected ? "bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-400"
+                          : "border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300"
                       }`}
                     >
                       {opt.id}. {opt.text}
@@ -445,13 +445,13 @@ function QuizResultsView({ result, onBack }: { result: QuizResult; onBack: () =>
                 })}
               </div>
               {a.explanation && (
-                <p className="text-xs text-slate-500 mt-3 ml-10">{a.explanation}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 ml-10">{a.explanation}</p>
               )}
             </div>
           ))}
           <button
             onClick={onBack}
-            className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 rounded-2xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center gap-2 mt-2"
           >
             <RotateCcw className="w-4 h-4" /> Back to Quiz Hub
           </button>
@@ -459,4 +459,4 @@ function QuizResultsView({ result, onBack }: { result: QuizResult; onBack: () =>
       )}
     </div>
   );
-}
+      }
