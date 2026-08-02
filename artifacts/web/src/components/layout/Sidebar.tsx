@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -15,8 +16,10 @@ import {
   Stethoscope,
   CreditCard,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { adminApi } from "../../lib/api";
 
 const navItems = [
   { id: "search", label: "Search", icon: Search, section: "main", href: "/search" },
@@ -30,9 +33,10 @@ const navItems = [
   { id: "progress", label: "Progress", icon: TrendingUp, section: "analytics", href: "/progress" },
   { id: "rewards", label: "Rewards", icon: Trophy, section: "analytics", href: "/rewards" },
   { id: "subscription", label: "Subscription", icon: CreditCard, section: "analytics", href: "/subscription" },
+  { id: "admin", label: "Admin Panel", icon: ShieldCheck, section: "admin", href: "/admin" },
 ];
 
-const BUILT_PAGES = new Set(["search", "dashboard", "subjects", "videos", "pdfs", "quiz", "flashcards", "ai-solver", "progress", "rewards"]);
+const BUILT_PAGES = new Set(["search", "dashboard", "subjects", "videos", "pdfs", "quiz", "flashcards", "ai-solver", "progress", "rewards", "admin"]);
 
 interface SidebarProps {
   collapsed: boolean;
@@ -44,11 +48,20 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const { user } = useAuth();
   const [location] = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    adminApi
+      .check()
+      .then(() => setIsAdmin(true))
+      .catch(() => setIsAdmin(false));
+  }, [user]);
 
   const sections = [
     { key: "main", label: "MAIN MENU" },
     { key: "practice", label: "PRACTICE" },
     { key: "analytics", label: "ANALYTICS" },
+    ...(isAdmin ? [{ key: "admin", label: "ADMIN" }] : []),
   ];
 
   return (
