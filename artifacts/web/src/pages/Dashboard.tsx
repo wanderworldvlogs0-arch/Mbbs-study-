@@ -35,8 +35,6 @@ export function Dashboard() {
     subjectsApi.list().then(setSubjects).catch(() => setSubjects([]));
   }, []);
 
-  // Live study timer: ticks locally every second, flushes accumulated
-  // seconds to the server every 30s (and on unmount) so it survives reloads.
   useEffect(() => {
     const tick = setInterval(() => {
       setLiveSeconds((s) => s + 1);
@@ -79,7 +77,7 @@ export function Dashboard() {
   if (!summary) {
     return (
       <AppLayout pageTitle="Dashboard">
-        <div className="p-8 text-center text-slate-400">Loading…</div>
+        <div className="p-8 text-center text-slate-400 dark:text-slate-500">Loading…</div>
       </AppLayout>
     );
   }
@@ -95,13 +93,12 @@ export function Dashboard() {
     <AppLayout pageTitle="Dashboard">
       <div className="max-w-7xl mx-auto p-5 md:p-8 space-y-8">
         <div>
-          <p className="text-sm font-medium text-slate-500 mb-1.5 uppercase tracking-wider">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
             {new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
           </p>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome back, {user?.name?.split(" ")[0]} 👋</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Welcome back, {user?.name?.split(" ")[0]} 👋</h1>
         </div>
 
-        {/* Quick stats — only ones backed by real data */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
           <StatCard
             icon={Clock}
@@ -124,14 +121,13 @@ export function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Today's Goals */}
-              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-7 relative overflow-hidden">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-7 relative overflow-hidden">
                 <div className="flex items-start justify-between mb-8">
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">Today's Goals</h3>
-                    <p className="text-sm text-slate-500 mt-1">Keep the streak going.</p>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Today's Goals</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Keep the streak going.</p>
                   </div>
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full border-4 border-slate-100 relative">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full border-4 border-slate-100 dark:border-slate-700 relative">
                     <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
                       <path
                         className="text-blue-500 transition-all duration-1000 ease-out"
@@ -143,7 +139,7 @@ export function Dashboard() {
                         strokeLinecap="round"
                       />
                     </svg>
-                    <span className="text-sm font-bold text-slate-900">{goalsPercent}%</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{goalsPercent}%</span>
                   </div>
                 </div>
 
@@ -154,22 +150,21 @@ export function Dashboard() {
                 </div>
               </div>
 
-              {/* Subject Mastery */}
-              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-7">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm p-7">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-bold text-slate-900">Subject Mastery</h3>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Subject Mastery</h3>
                   <SubjectsLink />
                 </div>
 
                 <div className="space-y-5">
-                  {topSubjects.length === 0 && <p className="text-sm text-slate-400">No subjects yet.</p>}
+                  {topSubjects.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">No subjects yet.</p>}
                   {topSubjects.map((s) => (
                     <div key={s.id}>
-                      <div className="flex justify-between text-sm font-semibold text-slate-700 mb-1.5">
+                      <div className="flex justify-between text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         <span>{s.name}</span>
                         <span>{s.progressPercent}%</span>
                       </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div className="h-full bg-blue-500 rounded-full" style={{ width: `${s.progressPercent}%` }} />
                       </div>
                     </div>
@@ -179,7 +174,6 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Right column: streak */}
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-orange-500 to-rose-600 rounded-3xl p-7 text-white shadow-lg shadow-orange-500/20 relative overflow-hidden">
               <div className="relative z-10">
@@ -231,7 +225,7 @@ function countStreak(streakDays: boolean[]): number {
 function SubjectsLink() {
   const [, navigate] = useLocation();
   return (
-    <button onClick={() => navigate("/subjects")} className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+    <button onClick={() => navigate("/subjects")} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
       View All <ChevronRight className="w-4 h-4 ml-0.5" />
     </button>
   );
@@ -249,18 +243,18 @@ function StatCard({
   color: "blue" | "indigo" | "green";
 }) {
   const colors = {
-    blue: "bg-blue-50 text-blue-600",
-    indigo: "bg-indigo-50 text-indigo-600",
-    green: "bg-green-50 text-green-600",
+    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+    indigo: "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
+    green: "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400",
   };
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${colors[color]}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-xs font-semibold text-slate-500 mb-0.5">{label}</p>
-        <div className="text-lg font-bold text-slate-900">{value}</div>
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
+        <div className="text-lg font-bold text-slate-900 dark:text-slate-100">{value}</div>
       </div>
     </div>
   );
@@ -284,9 +278,9 @@ function GoalRow({
   const percent = target === 0 ? 0 : Math.min(100, Math.round((current / target) * 100));
   const done = current >= target;
   const colors = {
-    blue: "bg-blue-500 text-blue-600 bg-blue-50",
-    purple: "bg-purple-500 text-purple-600 bg-purple-50",
-    pink: "bg-pink-500 text-pink-600 bg-pink-50",
+    blue: "bg-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30",
+    purple: "bg-purple-500 text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30",
+    pink: "bg-pink-500 text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/30",
   };
   const [bar, , chip] = colors[color].split(" ");
 
@@ -296,18 +290,18 @@ function GoalRow({
         <Icon className={`w-5 h-5 ${colors[color].split(" ")[1]}`} />
       </div>
       <div className="flex-1">
-        <div className="flex justify-between text-sm font-semibold text-slate-700 mb-1.5">
+        <div className="flex justify-between text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
           <span>{label}</span>
           <span>{current}/{target}</span>
         </div>
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${bar}`} style={{ width: `${percent}%` }} />
         </div>
       </div>
       <button
         onClick={onIncrement}
         disabled={done}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-40 disabled:hover:bg-transparent transition-colors flex-shrink-0 text-lg font-bold"
+        className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-transparent transition-colors flex-shrink-0 text-lg font-bold"
         title={done ? "Goal complete" : "Log one"}
       >
         +
