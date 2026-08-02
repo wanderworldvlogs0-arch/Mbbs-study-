@@ -53,6 +53,7 @@ async function createSessionAndRespond(
       email: user.email,
       academicYear: user.academicYear,
       mobileNumber: user.mobileNumber,
+      profilePhoto: user.profilePhoto,
     }),
   );
 }
