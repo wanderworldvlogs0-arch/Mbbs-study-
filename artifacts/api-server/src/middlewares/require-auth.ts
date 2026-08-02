@@ -36,6 +36,8 @@ export async function attachUser(
       name: usersTable.name,
       email: usersTable.email,
       academicYear: usersTable.academicYear,
+      mobileNumber: usersTable.mobileNumber,
+      profilePhoto: usersTable.profilePhoto
     })
     .from(sessionsTable)
     .innerJoin(usersTable, eq(sessionsTable.userId, usersTable.id))
