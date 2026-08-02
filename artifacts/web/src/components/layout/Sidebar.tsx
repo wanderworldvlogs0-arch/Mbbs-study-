@@ -59,18 +59,18 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
       <aside
         className={
           mobileOpen
-            ? "fixed md:static inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-transform duration-300 shadow-sm translate-x-0"
-            : "fixed md:static inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200 transition-transform duration-300 shadow-sm -translate-x-full md:translate-x-0"
+            ? "fixed md:static inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-transform duration-300 shadow-sm translate-x-0"
+            : "fixed md:static inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-transform duration-300 shadow-sm -translate-x-full md:translate-x-0"
         }
         style={{ width: collapsed ? 72 : 240 }}
       >
-        <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-100">
+        <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-100 dark:border-slate-700">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center flex-shrink-0 shadow-md">
             <Stethoscope className="w-5 h-5 text-white" />
           </div>
           {!collapsed && (
             <div>
-              <span className="text-base font-bold text-slate-800 tracking-tight">Dr.</span>
+              <span className="text-base font-bold text-slate-800 dark:text-white tracking-tight">Dr.</span>
               <span className="text-base font-bold text-blue-600">tragicMFA</span>
             </div>
           )}
@@ -80,7 +80,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           {sections.map((section) => (
             <div key={section.key} className="mb-4">
               {!collapsed && (
-                <p className="text-xs font-semibold text-slate-400 px-3 mb-1 tracking-widest">
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 px-3 mb-1 tracking-widest">
                   {section.label}
                 </p>
               )}
@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
                   const built = BUILT_PAGES.has(item.id);
                   const linkClass = active
                     ? "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium bg-blue-50 text-blue-700"
-                    : "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900";
+                    : "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 text-sm font-medium text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white";
                   return (
                     <Link
                       key={item.id}
@@ -116,7 +116,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           ))}
         </nav>
 
-        <div className="p-3 border-t border-slate-100">
+        <div className="p-3 border-t border-slate-100 dark:border-slate-700">
           <Link href="/profile" onClick={onMobileClose} className="flex items-center gap-3 flex-1">
             <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
   {user?.profilePhoto ? (
@@ -131,13 +131,13 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
 </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-800 truncate">{user?.name}</p>
+               <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{user?.name}</p>
                 <p className="text-xs text-slate-400 truncate">{user?.academicYear ?? ""}</p>
               </div>
             )}
             {!collapsed && (
               <Link href="/settings" onClick={onMobileClose}>
-                <Settings className="w-4 h-4 text-slate-400 flex-shrink-0 cursor-pointer" />
+                <Settings className="w-4 h-4 text-slate-400 dark:text-slate-300 flex-shrink-0 cursor-pointer" />
               </Link>
             )}
           </Link>
