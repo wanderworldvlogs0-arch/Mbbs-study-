@@ -1,23 +1,10 @@
-import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { AppLayout } from "../components/layout/AppLayout";
+import { useTheme } from "../context/ThemeContext";
 
 export function Settings() {
   const [, navigate] = useLocation();
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("darkMode") === "true";
-    setDarkMode(saved);
-    document.documentElement.classList.toggle("dark", saved);
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newValue = !darkMode;
-    setDarkMode(newValue);
-    localStorage.setItem("darkMode", String(newValue));
-    document.documentElement.classList.toggle("dark", newValue);
-  };
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -25,6 +12,8 @@ export function Settings() {
         method: "POST",
         credentials: "include",
       });
+    } catch (err) {
+      console.error("Logout API error:", err);
     } finally {
       localStorage.removeItem("token");
       navigate("/signin");
@@ -48,17 +37,15 @@ export function Settings() {
 
   return (
     <AppLayout>
-      <div className="p-6 bg-slate-50 dark:bg-slate-900 min-h-full">
-        <h1 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">
-          Settings
-        </h1>
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-6 text-slate-900 dark:text-slate-100">Settings</h1>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg">
           {items.map((item, index) => (
             <button
               key={index}
               onClick={item.action}
-              className="w-full text-left px-5 py-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0 text-slate-800 dark:text-white hover:bg-blue-50 dark:hover:bg-slate-700 transition"
+              className="w-full text-left px-5 py-4 border-b border-slate-100 dark:border-slate-700 last:border-b-0 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition"
             >
               {item.label}
             </button>
