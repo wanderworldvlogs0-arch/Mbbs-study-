@@ -18,6 +18,8 @@ router.get("/pdfs", async (req, res) => {
       title: pdfsTable.title,
       url: pdfsTable.url,
       pageCount: pdfsTable.pageCount,
+      category: pdfsTable.category,
+      year: pdfsTable.year,
     })
     .from(pdfsTable)
     .innerJoin(subjectsTable, eq(pdfsTable.subjectId, subjectsTable.id));
