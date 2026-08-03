@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
   academicYear: text("academic_year"),
   mobileNumber: text("mobile_number"), // <-- নতুন
   profilePhoto: text("profile_photo"), // base64 image data, <-- নতুন
+  plan: text("plan").notNull().default("free"), // "free" | "pro" | "elite"
 
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
