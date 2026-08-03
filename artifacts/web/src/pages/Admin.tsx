@@ -9,6 +9,7 @@ import {
   Trash2,
   Loader2,
   ShieldAlert,
+  BookOpen,
 } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { subjectsApi, adminApi, ApiError } from "../lib/api";
@@ -16,9 +17,10 @@ import type { SubjectSummary } from "@workspace/api-zod";
 import type { AdminContent } from "../lib/api";
 import { uploadToCloudinary } from "../lib/cloudinary";
 
-type ContentType = "video" | "notes" | "pyq" | "flashcard" | "mcq";
+type ContentType = "chapter" | "video" | "notes" | "pyq" | "flashcard" | "mcq";
 
 const TABS: { id: ContentType; label: string; icon: typeof Video }[] = [
+  { id: "chapter", label: "Chapter", icon: BookOpen },
   { id: "video", label: "Video", icon: Video },
   { id: "notes", label: "PDF Notes", icon: FileText },
   { id: "pyq", label: "PYQ", icon: ScrollText },
@@ -150,6 +152,15 @@ export function Admin() {
         )}
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 md:p-6">
+          {tab === "chapter" && (
+            <ChapterForm
+              subjectId={subjectId}
+              saving={saving}
+              setSaving={setSaving}
+              setStatus={setStatus}
+              onDone={refresh}
+            />
+          )}
           {tab === "video" && (
             <VideoForm
               subjectId={subjectId}
@@ -294,6 +305,82 @@ function FileUploadField({
           className={inputClass}
         />
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------
+// Chapter form
+// ---------------------------------------------------------------
+
+function ChapterForm({
+  subjectId,
+  saving,
+  setSaving,
+  setStatus,
+  onDone,
+}: {
+  subjectId: string;
+  saving: boolean;
+  setSaving: (b: boolean) => void;
+  setStatus: Setter;
+  onDone: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [subChapterCount, setSubChapterCount] = useState("");
+  const [estimatedMinutes, setEstimatedMinutes] = useState("");
+
+  async function submit() {
+    if (!subjectId || !title) {
+      setStatus({ type: "err", text: "Title is required." });
+      return;
+    }
+    setSaving(true);
+    try {
+      await adminApi.addChapter({
+        subjectId,
+        title,
+        subChapterCount: subChapterCount ? Number(subChapterCount) : 0,
+        estimatedMinutes: estimatedMinutes ? Number(estimatedMinutes) : 0,
+      });
+      setTitle("");
+      setSubChapterCount("");
+      setEstimatedMinutes("");
+      setStatus({ type: "ok", text: "Chapter added." });
+      onDone();
+    } catch (err) {
+      setStatus({ type: "err", text: err instanceof ApiError ? err.message : "Failed to save." });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <FieldLabel>Chapter title</FieldLabel>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="e.g. Osteology" />
+      </div>
+      <div className="flex gap-4 flex-wrap">
+        <div className="max-w-xs">
+          <FieldLabel>Sub-chapters (optional)</FieldLabel>
+          <input value={subChapterCount} onChange={(e) => setSubChapterCount(e.target.value)} className={inputClass} placeholder="4" inputMode="numeric" />
+        </div>
+        <div className="max-w-xs">
+          <FieldLabel>Estimated minutes (optional)</FieldLabel>
+          <input value={estimatedMinutes} onChange={(e) => setEstimatedMinutes(e.target.value)} className={inputClass} placeholder="150" inputMode="numeric" />
+        </div>
+      </div>
+      <button
+        onClick={submit}
+        disabled={saving}
+        className="self-start px-5 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 text-white shadow-sm disabled:opacity-50"
+      >
+        {saving ? "Saving…" : "Add chapter"}
+      </button>
+      <p className="text-xs text-slate-400">
+        Tip: any pre-loaded sample chapters (e.g. under Anatomy) can be removed from the "Already uploaded" list below.
+      </p>
     </div>
   );
 }
@@ -644,7 +731,8 @@ function ExistingList({
   async function remove(kind: ContentType, id: string) {
     setDeleting(id);
     try {
-      if (kind === "video") await adminApi.deleteVideo(id);
+      if (kind === "chapter") await adminApi.deleteChapter(id);
+      else if (kind === "video") await adminApi.deleteVideo(id);
       else if (kind === "notes" || kind === "pyq") await adminApi.deletePdf(id);
       else if (kind === "flashcard") await adminApi.deleteFlashcard(id);
       else if (kind === "mcq") await adminApi.deleteMcq(id);
@@ -656,6 +744,20 @@ function ExistingList({
 
   const rowClass =
     "flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 dark:border-slate-700 last:border-0 text-sm";
+
+  if (tab === "chapter") {
+    if (content.chapters.length === 0) return <Empty />;
+    return (
+      <>
+        {content.chapters.map((c) => (
+          <div key={c.id} className={rowClass}>
+            <span className="text-slate-700 dark:text-slate-300 truncate">{c.title}</span>
+            <DeleteBtn onClick={() => remove("chapter", c.id)} loading={deleting === c.id} />
+          </div>
+        ))}
+      </>
+    );
+  }
 
   if (tab === "video") {
     if (content.videos.length === 0) return <Empty />;
