@@ -36,7 +36,7 @@ const navItems = [
   { id: "admin", label: "Admin Panel", icon: ShieldCheck, section: "admin", href: "/admin" },
 ];
 
-const BUILT_PAGES = new Set(["search", "dashboard", "subjects", "videos", "pdfs", "quiz", "flashcards", "ai-solver", "progress", "rewards", "admin"]);
+const BUILT_PAGES = new Set(["search", "dashboard", "subjects", "videos", "pdfs", "quiz", "flashcards", "ai-solver", "progress", "rewards", "subscription", "admin"]);
 
 interface SidebarProps {
   collapsed: boolean;
