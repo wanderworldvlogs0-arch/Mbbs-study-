@@ -6,6 +6,7 @@ import {
   pdfsTable,
   flashcardsTable,
   mcqsTable,
+  chaptersTable,
 } from "@workspace/db";
 import { requireAuth } from "../middlewares/require-auth";
 import { requireAdmin } from "../middlewares/require-admin";
@@ -29,7 +30,7 @@ router.get("/admin/content", async (req, res) => {
     return;
   }
 
-  const [videos, pdfs, flashcards, mcqs] = await Promise.all([
+  const [videos, pdfs, flashcards, mcqs, chapters] = await Promise.all([
     db.select().from(videosTable).where(eq(videosTable.subjectId, subjectId)),
     db.select().from(pdfsTable).where(eq(pdfsTable.subjectId, subjectId)),
     db
@@ -37,9 +38,52 @@ router.get("/admin/content", async (req, res) => {
       .from(flashcardsTable)
       .where(eq(flashcardsTable.subjectId, subjectId)),
     db.select().from(mcqsTable).where(eq(mcqsTable.subjectId, subjectId)),
+    db
+      .select()
+      .from(chaptersTable)
+      .where(eq(chaptersTable.subjectId, subjectId))
+      .orderBy(chaptersTable.orderIndex),
   ]);
 
-  res.json({ videos, pdfs, flashcards, mcqs });
+  res.json({ videos, pdfs, flashcards, mcqs, chapters });
+});
+
+// ---------------- Chapters ----------------
+router.post("/admin/chapters", async (req, res) => {
+  const { subjectId, title, subChapterCount, estimatedMinutes } = req.body as {
+    subjectId?: string;
+    title?: string;
+    subChapterCount?: number;
+    estimatedMinutes?: number;
+  };
+
+  if (!subjectId || !title) {
+    res.status(400).json({ message: "subjectId and title are required" });
+    return;
+  }
+
+  const existing = await db
+    .select()
+    .from(chaptersTable)
+    .where(eq(chaptersTable.subjectId, subjectId));
+
+  const [chapter] = await db
+    .insert(chaptersTable)
+    .values({
+      subjectId,
+      title,
+      orderIndex: existing.length,
+      subChapterCount: subChapterCount ?? 0,
+      estimatedMinutes: estimatedMinutes ?? 0,
+    })
+    .returning();
+
+  res.status(201).json(chapter);
+});
+
+router.delete("/admin/chapters/:id", async (req, res) => {
+  await db.delete(chaptersTable).where(eq(chaptersTable.id, req.params.id));
+  res.status(204).end();
 });
 
 // ---------------- Videos ----------------
