@@ -195,11 +195,20 @@ export interface AdminMcq {
   correctOptionId: string;
   explanation: string | null;
 }
+export interface AdminChapter {
+  id: string;
+  subjectId: string;
+  title: string;
+  orderIndex: number;
+  subChapterCount: number;
+  estimatedMinutes: number;
+}
 export interface AdminContent {
   videos: AdminVideo[];
   pdfs: AdminPdf[];
   flashcards: AdminFlashcard[];
   mcqs: AdminMcq[];
+  chapters: AdminChapter[];
 }
 
 export const adminApi = {
@@ -207,6 +216,14 @@ export const adminApi = {
 
   content: (subjectId: string) =>
     request<AdminContent>(`/admin/content?subjectId=${subjectId}`),
+
+  addChapter: (data: {
+    subjectId: string;
+    title: string;
+    subChapterCount?: number;
+    estimatedMinutes?: number;
+  }) => request<AdminChapter>("/admin/chapters", { method: "POST", body: JSON.stringify(data) }),
+  deleteChapter: (id: string) => request<void>(`/admin/chapters/${id}`, { method: "DELETE" }),
 
   addVideo: (data: { subjectId: string; title: string; url: string; durationMinutes?: number }) =>
     request<AdminVideo>("/admin/videos", { method: "POST", body: JSON.stringify(data) }),
