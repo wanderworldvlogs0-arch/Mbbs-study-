@@ -38,6 +38,7 @@ export async function attachUser(
       academicYear: usersTable.academicYear,
       mobileNumber: usersTable.mobileNumber,
       profilePhoto: usersTable.profilePhoto,
+      plan: usersTable.plan,
       createdAt: usersTable.createdAt,
     })
     .from(sessionsTable)
