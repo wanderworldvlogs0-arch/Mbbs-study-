@@ -8,8 +8,8 @@ import type {
   VideoSummary,
   PdfSummary,
   QuizSubjectOption,
-  QuizAttemptstart,
-  Quizresult,
+  QuizAttemptStart,
+  QuizResult,
   RecentQuizSummary,
   LeaderboardEntry,
   FlashcardSubjectOption,
@@ -113,16 +113,7 @@ export const dashboardApi = {
       body: JSON.stringify({ type }),
     }),
 };
-import type {
-  AuthUser,
-  ErrorResponse,
-  SubjectSummary,
-  SubjectDetail,
-  ChapterProgress,
-  DashboardSummary,
-  VideoSummary,
-  PdfSummary,
-} from "@workspace/api-zod";
+
 export const videosApi = {
   list: (subjectId?: string) =>
     request<VideoSummary[]>(subjectId ? `/videos?subjectId=${subjectId}` : "/videos"),
