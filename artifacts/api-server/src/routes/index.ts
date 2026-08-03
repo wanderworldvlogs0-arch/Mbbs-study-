@@ -8,6 +8,7 @@ import pdfsRouter from "./pdfs";
 import quizRouter from "./quiz";
 import flashcardsRouter from "./flashcards";
 import doubtSolverRouter from "./doubtSolver";
+import subscriptionRouter from "./subscription";
 import adminRouter from "./admin";
 
 const router: IRouter = Router();
@@ -21,6 +22,7 @@ router.use(pdfsRouter);
 router.use(quizRouter);
 router.use(flashcardsRouter);
 router.use(doubtSolverRouter);
+router.use(subscriptionRouter);
 router.use(adminRouter);
 
 export default router;
