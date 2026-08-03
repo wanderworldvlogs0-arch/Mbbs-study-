@@ -18,6 +18,8 @@ import type {
   DoubtChatSummary,
   DoubtChatDetail,
   SendDoubtMessageResponse,
+  SubscriptionStatus,
+  SubscriptionPlanId,
 } from "@workspace/api-zod";
 
 export class ApiError extends Error {
@@ -159,6 +161,15 @@ export const doubtSolverApi = {
     request<SendDoubtMessageResponse>("/doubt-solver/send", {
       method: "POST",
       body: JSON.stringify({ chatId, message }),
+    }),
+};
+
+export const subscriptionApi = {
+  status: () => request<SubscriptionStatus>("/subscription"),
+  select: (planId: SubscriptionPlanId) =>
+    request<SubscriptionStatus>("/subscription/select", {
+      method: "POST",
+      body: JSON.stringify({ planId }),
     }),
 };
 
