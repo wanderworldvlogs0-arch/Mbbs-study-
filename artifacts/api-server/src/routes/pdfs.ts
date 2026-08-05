@@ -7,7 +7,7 @@ const router: IRouter = Router();
 router.use(requireAuth);
 
 router.get("/pdfs", async (req, res) => {
-  const { subjectId } = req.query;
+  const { subjectId, chapterId } = req.query;
 
   const base = db
     .select({
@@ -25,7 +25,9 @@ router.get("/pdfs", async (req, res) => {
     .innerJoin(subjectsTable, eq(pdfsTable.subjectId, subjectsTable.id));
 
   const rows =
-    typeof subjectId === "string"
+    typeof subjectId === "string" && typeof chapterId === "string"
+      ? await base.where(and(eq(pdfsTable.subjectId, subjectId), eq(pdfsTable.chapterId, chapterId))).orderBy(pdfsTable.orderIndex)
+      : typeof subjectId === "string"
       ? await base.where(eq(pdfsTable.subjectId, subjectId)).orderBy(pdfsTable.orderIndex)
       : await base.orderBy(pdfsTable.subjectId, pdfsTable.orderIndex);
 
