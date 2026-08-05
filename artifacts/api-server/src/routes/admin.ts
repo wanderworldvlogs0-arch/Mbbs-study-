@@ -88,8 +88,9 @@ router.delete("/admin/chapters/:id", async (req, res) => {
 
 // ---------------- Videos ----------------
 router.post("/admin/videos", async (req, res) => {
-  const { subjectId, title, url, durationMinutes } = req.body as {
+  const { subjectId, chapterId, title, url, durationMinutes } = req.body as {
     subjectId?: string;
+    chapterId?: string;
     title?: string;
     url?: string;
     durationMinutes?: number;
@@ -104,6 +105,7 @@ router.post("/admin/videos", async (req, res) => {
     .insert(videosTable)
     .values({
       subjectId,
+      chapterId: chapterId || null,
       title,
       url,
       durationMinutes: durationMinutes ?? 0,
@@ -120,8 +122,9 @@ router.delete("/admin/videos/:id", async (req, res) => {
 
 // ---------------- PDFs (notes + PYQs) ----------------
 router.post("/admin/pdfs", async (req, res) => {
-  const { subjectId, title, url, pageCount, category, year } = req.body as {
+  const { subjectId, chapterId, title, url, pageCount, category, year } = req.body as {
     subjectId?: string;
+    chapterId?: string;
     title?: string;
     url?: string;
     pageCount?: number;
@@ -138,6 +141,7 @@ router.post("/admin/pdfs", async (req, res) => {
     .insert(pdfsTable)
     .values({
       subjectId,
+      chapterId: chapterId || null,
       title,
       url,
       pageCount: pageCount ?? 0,
@@ -156,8 +160,9 @@ router.delete("/admin/pdfs/:id", async (req, res) => {
 
 // ---------------- Flashcards ----------------
 router.post("/admin/flashcards", async (req, res) => {
-  const { subjectId, front, back, mnemonic, reference } = req.body as {
+  const { subjectId, chapterId, front, back, mnemonic, reference } = req.body as {
     subjectId?: string;
+    chapterId?: string;
     front?: string;
     back?: string;
     mnemonic?: string;
@@ -173,6 +178,7 @@ router.post("/admin/flashcards", async (req, res) => {
     .insert(flashcardsTable)
     .values({
       subjectId,
+      chapterId: chapterId || null,
       front,
       back,
       mnemonic: mnemonic || null,
@@ -190,9 +196,10 @@ router.delete("/admin/flashcards/:id", async (req, res) => {
 
 // ---------------- MCQs (also power Quiz) ----------------
 router.post("/admin/mcqs", async (req, res) => {
-  const { subjectId, questionText, options, correctOptionId, explanation } =
+  const { subjectId, chapterId, questionText, options, correctOptionId, explanation } =
     req.body as {
       subjectId?: string;
+      chapterId?: string;
       questionText?: string;
       options?: { id: string; text: string }[];
       correctOptionId?: string;
@@ -217,6 +224,7 @@ router.post("/admin/mcqs", async (req, res) => {
     .insert(mcqsTable)
     .values({
       subjectId,
+      chapterId: chapterId || null,
       questionText,
       options,
       correctOptionId,
