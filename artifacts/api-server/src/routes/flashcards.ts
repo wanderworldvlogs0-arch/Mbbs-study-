@@ -69,11 +69,13 @@ router.get("/flashcards/subjects", async (req, res) => {
 // Start a review session: due cards for a subject (or all subjects if omitted).
 router.get("/flashcards/session", async (req, res) => {
   const userId = req.user!.id;
-  const { subjectId } = req.query;
+  const { subjectId, chapterId } = req.query;
   const today = todayDateString();
 
   const cards =
-    typeof subjectId === "string"
+    typeof subjectId === "string" && typeof chapterId === "string"
+      ? await db.select().from(flashcardsTable).where(and(eq(flashcardsTable.subjectId, subjectId), eq(flashcardsTable.chapterId, chapterId)))
+      : typeof subjectId === "string"
       ? await db.select().from(flashcardsTable).where(eq(flashcardsTable.subjectId, subjectId))
       : await db.select().from(flashcardsTable);
 
