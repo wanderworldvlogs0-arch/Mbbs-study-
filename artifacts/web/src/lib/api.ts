@@ -122,8 +122,13 @@ export const videosApi = {
 };
 
 export const pdfsApi = {
-  list: (subjectId?: string) =>
-    request<PdfSummary[]>(subjectId ? `/pdfs?subjectId=${subjectId}` : "/pdfs"),
+  list: (subjectId?: string, chapterId?: string) => {
+    const params = new URLSearchParams();
+    if (subjectId) params.append("subjectId", subjectId);
+    if (chapterId) params.append("chapterId", chapterId);
+    const queryString = params.toString();
+    return request<PdfSummary[]>(queryString ? `/pdfs?${queryString}` : "/pdfs");
+  },
 };
 export const quizApi = {
   subjects: () => request<QuizSubjectOption[]>("/quiz/subjects"),
