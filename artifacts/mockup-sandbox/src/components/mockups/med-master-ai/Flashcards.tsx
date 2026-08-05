@@ -225,19 +225,31 @@ function SubjectCard({ subject, onStart }: { subject: any, onStart: () => void }
 }
 
 function ActiveSessionView({ activeSubjectId, onExit }: { activeSubjectId: string | null, onExit: () => void }) {
+  const sessionCards = activeSubjectId && activeSubjectId !== 'anatomy' ? [] : CARDS;
   const [isFlipped, setIsFlipped] = useState(false);
-  const [cardIndices, setCardIndices] = useState(() => Array.from({length: CARDS.length}, (_, i) => i));
+  const [cardIndices, setCardIndices] = useState(() => Array.from({length: sessionCards.length}, (_, i) => i));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Array<'again' | 'hard' | 'good' | 'easy' | null>>(
-    Array(CARDS.length).fill(null)
+    Array(sessionCards.length).fill(null)
   );
   const [bookmarked, setBookmarked] = useState<Set<number>>(new Set());
   const [timer, setTimer] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   
-  const totalCards = CARDS.length;
+const totalCards = sessionCards.length;
   const currentCardIndex = cardIndices[currentIndex];
-  const card = CARDS[currentCardIndex];
+  const card = sessionCards[currentCardIndex];
+
+  if (totalCards === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 px-6 text-center">
+        <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">No flashcards available for this subject yet.</p>
+        <button onClick={onExit} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold">
+          Return to Hub
+        </button>
+      </div>
+    );
+  }  
   
   const subjectName = activeSubjectId 
     ? subjects.find(s => s.id === activeSubjectId)?.name 
@@ -257,7 +269,7 @@ function ActiveSessionView({ activeSubjectId, onExit }: { activeSubjectId: strin
     }
     setCardIndices(newIndices);
     setCurrentIndex(0);
-    setAnswers(Array(CARDS.length).fill(null));
+    setAnswers(Array(sessionCards.length).fill(null));
     setIsFlipped(false);
     setTimer(0);
   };
