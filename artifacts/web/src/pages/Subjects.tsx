@@ -272,16 +272,30 @@ function SubjectDetailView({ subjectId, onBack }: { subjectId: string; onBack: (
             </div>
 
             <div className="flex items-center gap-2 lg:gap-3 pl-12 md:pl-0 pt-4 md:pt-0 mt-2 md:mt-0 border-t border-slate-100 dark:border-slate-700 md:border-t-0 w-full md:w-auto">
-              <div onClick={() => navigate(`/notes?subject=${subject.id}`)}>
-  <ResourceIcon
-    tooltip="Notes"
-    active={true}
-    icon={<FileText size={18} />}
-  />
-</div>
-              <ResourceIcon tooltip="Video" active={false} icon={<PlayCircle size={18} />} />
-              <ResourceIcon tooltip="Flashcards" active={false} icon={<Layers size={18} />} />
-              <ResourceIcon tooltip="MCQs" active={false} icon={<FileQuestion size={18} />} />
+              <ResourceIcon
+                tooltip="Notes"
+                active={true}
+                icon={<FileText size={18} />}
+                onClick={() => navigate(`/notes?subject=${subject.id}&chapter=${ch.id}`)}
+              />
+              <ResourceIcon
+                tooltip="Video"
+                active={true}
+                icon={<PlayCircle size={18} />}
+                onClick={() => navigate(`/videos?subject=${subject.id}&chapter=${ch.id}`)}
+              />
+              <ResourceIcon
+                tooltip="Flashcards"
+                active={true}
+                icon={<Layers size={18} />}
+                onClick={() => navigate(`/flashcards?subject=${subject.id}&chapter=${ch.id}`)}
+              />
+              <ResourceIcon
+                tooltip="MCQs"
+                active={true}
+                icon={<FileQuestion size={18} />}
+                onClick={() => navigate(`/quiz?subject=${subject.id}&chapter=${ch.id}`)}
+              />
             </div>
           </div>
         ))}
@@ -323,7 +337,7 @@ function FilterBadge({ label, count, active, onClick, color }: { label: string; 
   );
 }
 
-function ResourceIcon({ tooltip, active, icon }: { tooltip: string; active: boolean; icon: React.ReactNode }) {
+function ResourceIcon({ tooltip, active, icon, onClick }: { tooltip: string; active: boolean; icon: React.ReactNode; onClick?: () => void }) {
   if (!active) {
     return (
       <div title={`${tooltip} (not available yet)`} className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-300 dark:text-slate-600 cursor-not-allowed flex-shrink-0">
@@ -332,8 +346,13 @@ function ResourceIcon({ tooltip, active, icon }: { tooltip: string; active: bool
     );
   }
   return (
-    <div title={tooltip} className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all cursor-pointer flex-shrink-0">
+    <button
+      onClick={onClick}
+      title={tooltip}
+      className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all cursor-pointer flex-shrink-0"
+    >
       {icon}
-    </div>
+    </button>
   );
-                }
+        }
+        
