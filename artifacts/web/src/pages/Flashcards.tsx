@@ -6,6 +6,7 @@ import {
 import { AppLayout } from "../components/layout/AppLayout";
 import { flashcardsApi } from "../lib/api";
 import type { FlashcardSubjectOption, FlashcardSession, FlashcardRating } from "@workspace/api-zod";
+import { useLocation } from "wouter";
 
 export function Flashcards() {
   const [session, setSession] = useState<FlashcardSession | null>(null);
@@ -22,8 +23,11 @@ export function Flashcards() {
 }
 
 function FlashcardHub({ onStart }: { onStart: (s: FlashcardSession) => void }) {
+  const [, params] = useLocation();
   const [subjects, setSubjects] = useState<FlashcardSubjectOption[] | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
+
+  const urlChapter = new URLSearchParams(params).get("chapter");
 
   useEffect(() => {
     flashcardsApi.subjects().then(setSubjects).catch(() => setSubjects([]));
@@ -38,7 +42,7 @@ function FlashcardHub({ onStart }: { onStart: (s: FlashcardSession) => void }) {
   const handleStart = async (subjectId?: string) => {
     setStarting(subjectId ?? "all");
     try {
-      const session = await flashcardsApi.session(subjectId);
+      const session = await flashcardsApi.session(subjectId, urlChapter || undefined);
       if (session.cards.length === 0) {
         alert("No cards due right now for this subject.");
         return;
@@ -249,4 +253,4 @@ function ActiveSession({ session, onExit }: { session: FlashcardSession; onExit:
       </div>
     </div>
   );
-          }
+}
