@@ -3,10 +3,10 @@ import { FileText, Search, BookOpen } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { pdfsApi, subjectsApi } from "../lib/api";
 import type { PdfSummary, SubjectSummary } from "@workspace/api-zod";
-import { useLocation } from "wouter";
+import { useSearch } from "wouter";
 
 export function Pdfs() {
-  const [, params] = useLocation();
+  const params = useSearch();
   const [pdfs, setPdfs] = useState<PdfSummary[] | null>(null);
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [subjectFilter, setSubjectFilter] = useState("all");

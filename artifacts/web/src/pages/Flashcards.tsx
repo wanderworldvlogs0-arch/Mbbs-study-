@@ -6,11 +6,11 @@ import {
 import { AppLayout } from "../components/layout/AppLayout";
 import { flashcardsApi } from "../lib/api";
 import type { FlashcardSubjectOption, FlashcardSession, FlashcardRating } from "@workspace/api-zod";
-import { useLocation } from "wouter";
+import { useSearch } from "wouter";
 
 export function Flashcards() {
   const [session, setSession] = useState<FlashcardSession | null>(null);
-  const [, params] = useLocation();
+  const params = useSearch();
   const autoStarted = useRef(false);
 
   // If we arrived from a specific chapter's Flashcards icon (subject + chapter
@@ -43,7 +43,7 @@ export function Flashcards() {
 }
 
 function FlashcardHub({ onStart }: { onStart: (s: FlashcardSession) => void }) {
-  const [, params] = useLocation();
+  const params = useSearch();
   const [subjects, setSubjects] = useState<FlashcardSubjectOption[] | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
 

@@ -3,10 +3,10 @@ import { PlayCircle, Search, Clock, BookOpen } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { videosApi, subjectsApi } from "../lib/api";
 import type { VideoSummary, SubjectSummary } from "@workspace/api-zod";
-import { useLocation } from "wouter";
+import { useSearch } from "wouter";
 
 export function Videos() {
-  const [, params] = useLocation();
+  const params = useSearch();
   const [videos, setVideos] = useState<VideoSummary[] | null>(null);
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [subjectFilter, setSubjectFilter] = useState("all");

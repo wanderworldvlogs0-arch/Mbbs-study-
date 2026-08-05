@@ -9,7 +9,7 @@ import type {
   QuizSubjectOption, QuizAttemptStart, QuizResult,
   RecentQuizSummary, LeaderboardEntry,
 } from "@workspace/api-zod";
-import { useLocation } from "wouter";
+import { useSearch } from "wouter";
 
 type ViewState = "hub" | "active" | "results";
 
@@ -17,7 +17,7 @@ export function Quiz() {
   const [view, setView] = useState<ViewState>("hub");
   const [attempt, setAttempt] = useState<QuizAttemptStart | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [, params] = useLocation();
+  const params = useSearch();
   const autoStarted = useRef(false);
 
   // If we arrived from a specific chapter's MCQs icon (subject + chapter in
@@ -67,14 +67,14 @@ export function Quiz() {
 }
 
 function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) {
-  const [, params] = useLocation();
+  const locationSearch = useSearch();
   const [subjects, setSubjects] = useState<QuizSubjectOption[] | null>(null);
   const [recent, setRecent] = useState<RecentQuizSummary[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [search, setSearch] = useState("");
   const [starting, setStarting] = useState<string | null>(null);
 
-  const urlChapter = new URLSearchParams(params).get("chapter");
+  const urlChapter = new URLSearchParams(locationSearch).get("chapter");
 
   useEffect(() => {
     quizApi.subjects().then(setSubjects).catch(() => setSubjects([]));

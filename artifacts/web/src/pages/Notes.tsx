@@ -1,5 +1,5 @@
 import { AppLayout } from "../components/layout/AppLayout";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { useEffect, useState } from "react";
 import { FileText, ChevronLeft, BookOpen } from "lucide-react";
 import { subjectsApi, pdfsApi } from "../lib/api";
@@ -10,9 +10,10 @@ import type { SubjectDetail, PdfSummary } from "@workspace/api-zod";
 type PdfWithCategory = PdfSummary & { category?: "notes" | "pyq" };
 
 export function Notes() {
-  const [location, navigate] = useLocation();
+  const [, navigate] = useLocation();
+  const search = useSearch();
 
-  const params = new URLSearchParams(location.split("?")[1]);
+  const params = new URLSearchParams(search);
   const subjectId = params.get("subject");
   const chapterId = params.get("chapter");
 
