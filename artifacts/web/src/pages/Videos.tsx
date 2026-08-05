@@ -3,12 +3,21 @@ import { PlayCircle, Search, Clock, BookOpen } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { videosApi, subjectsApi } from "../lib/api";
 import type { VideoSummary, SubjectSummary } from "@workspace/api-zod";
+import { useLocation } from "wouter";
 
 export function Videos() {
+  const [, params] = useLocation();
   const [videos, setVideos] = useState<VideoSummary[] | null>(null);
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [search, setSearch] = useState("");
+
+  const urlSubject = new URLSearchParams(params).get("subject") || "all";
+  const urlChapter = new URLSearchParams(params).get("chapter");
+
+  useEffect(() => {
+    setSubjectFilter(urlSubject);
+  }, [urlSubject]);
 
   useEffect(() => {
     videosApi.list().then(setVideos).catch(() => setVideos([]));
@@ -17,6 +26,7 @@ export function Videos() {
 
   const filtered = (videos ?? []).filter((v) => {
     if (subjectFilter !== "all" && v.subjectId !== subjectFilter) return false;
+    if (urlChapter && v.chapterId !== urlChapter) return false;
     if (search && !v.title.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
