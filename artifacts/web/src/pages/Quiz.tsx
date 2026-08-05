@@ -9,6 +9,7 @@ import type {
   QuizSubjectOption, QuizAttemptStart, QuizResult,
   RecentQuizSummary, LeaderboardEntry,
 } from "@workspace/api-zod";
+import { useLocation } from "wouter";
 
 type ViewState = "hub" | "active" | "results";
 
@@ -45,11 +46,14 @@ export function Quiz() {
 }
 
 function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) {
+  const [, params] = useLocation();
   const [subjects, setSubjects] = useState<QuizSubjectOption[] | null>(null);
   const [recent, setRecent] = useState<RecentQuizSummary[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [search, setSearch] = useState("");
   const [starting, setStarting] = useState<string | null>(null);
+
+  const urlChapter = new URLSearchParams(params).get("chapter");
 
   useEffect(() => {
     quizApi.subjects().then(setSubjects).catch(() => setSubjects([]));
@@ -64,7 +68,7 @@ function QuizHub({ onStart }: { onStart: (attempt: QuizAttemptStart) => void }) 
   const handleStart = async (subjectId: string) => {
     setStarting(subjectId);
     try {
-      const attempt = await quizApi.start(subjectId);
+      const attempt = await quizApi.start(subjectId, urlChapter || undefined);
       onStart(attempt);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Could not start quiz");
