@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Layers, Play, Clock, Brain, RotateCcw, Trophy, BookOpen,
   Bookmark, ChevronLeft, ChevronRight,
@@ -10,6 +10,26 @@ import { useLocation } from "wouter";
 
 export function Flashcards() {
   const [session, setSession] = useState<FlashcardSession | null>(null);
+  const [, params] = useLocation();
+  const autoStarted = useRef(false);
+
+  // If we arrived from a specific chapter's Flashcards icon (subject + chapter
+  // in the URL), jump straight into that chapter's session instead of the
+  // generic "pick a subject" hub. Runs once per visit to this page.
+  useEffect(() => {
+    if (autoStarted.current) return;
+    const search = new URLSearchParams(params);
+    const subjectId = search.get("subject");
+    const chapterId = search.get("chapter");
+    if (!subjectId || !chapterId) return;
+    autoStarted.current = true;
+    flashcardsApi
+      .session(subjectId, chapterId)
+      .then((s) => {
+        if (s.cards.length > 0) setSession(s);
+      })
+      .catch(() => {});
+  }, [params]);
 
   return (
     <AppLayout pageTitle="Flashcards">

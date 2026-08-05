@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Play, Clock, Trophy, Search, XCircle, SkipForward, ChevronLeft,
   ChevronRight, CheckCircle2, Eye, RotateCcw,
@@ -17,6 +17,27 @@ export function Quiz() {
   const [view, setView] = useState<ViewState>("hub");
   const [attempt, setAttempt] = useState<QuizAttemptStart | null>(null);
   const [result, setResult] = useState<QuizResult | null>(null);
+  const [, params] = useLocation();
+  const autoStarted = useRef(false);
+
+  // If we arrived from a specific chapter's MCQs icon (subject + chapter in
+  // the URL), jump straight into a quiz for that chapter instead of the
+  // generic "pick a subject" hub. Runs once per visit to this page.
+  useEffect(() => {
+    if (autoStarted.current) return;
+    const search = new URLSearchParams(params);
+    const subjectId = search.get("subject");
+    const chapterId = search.get("chapter");
+    if (!subjectId || !chapterId) return;
+    autoStarted.current = true;
+    quizApi
+      .start(subjectId, chapterId)
+      .then((a) => {
+        setAttempt(a);
+        setView("active");
+      })
+      .catch(() => {});
+  }, [params]);
 
   return (
     <AppLayout pageTitle="Quiz">
