@@ -127,10 +127,10 @@ export const pdfsApi = {
 };
 export const quizApi = {
   subjects: () => request<QuizSubjectOption[]>("/quiz/subjects"),
-  start: (subjectId: string, count?: number) =>
+  start: (subjectId: string, chapterId?: string, count?: number) =>
     request<QuizAttemptStart>("/quiz/start", {
       method: "POST",
-      body: JSON.stringify({ subjectId, count }),
+      body: JSON.stringify({ subjectId, chapterId, count }),
     }),
   saveAnswer: (attemptId: string, mcqId: string, selectedOptionId: string | null) =>
     request<{ ok: boolean }>(`/quiz/${attemptId}/answer`, {
@@ -144,10 +144,15 @@ export const quizApi = {
 };
 export const flashcardsApi = {
   subjects: () => request<FlashcardSubjectOption[]>("/flashcards/subjects"),
-  session: (subjectId?: string) =>
-    request<FlashcardSession>(
-      subjectId ? `/flashcards/session?subjectId=${subjectId}` : "/flashcards/session",
-    ),
+  session: (subjectId?: string, chapterId?: string) => {
+    const params = new URLSearchParams();
+    if (subjectId) params.append("subjectId", subjectId);
+    if (chapterId) params.append("chapterId", chapterId);
+    const queryString = params.toString();
+    return request<FlashcardSession>(
+      queryString ? `/flashcards/session?${queryString}` : "/flashcards/session",
+    );
+  },
   rate: (flashcardId: string, rating: FlashcardRating) =>
     request<{ ok: boolean }>(`/flashcards/${flashcardId}/rate`, {
       method: "PUT",
@@ -236,12 +241,13 @@ export const adminApi = {
   }) => request<AdminChapter>("/admin/chapters", { method: "POST", body: JSON.stringify(data) }),
   deleteChapter: (id: string) => request<void>(`/admin/chapters/${id}`, { method: "DELETE" }),
 
-  addVideo: (data: { subjectId: string; title: string; url: string; durationMinutes?: number }) =>
+  addVideo: (data: { subjectId: string; chapterId?: string; title: string; url: string; durationMinutes?: number }) =>
     request<AdminVideo>("/admin/videos", { method: "POST", body: JSON.stringify(data) }),
   deleteVideo: (id: string) => request<void>(`/admin/videos/${id}`, { method: "DELETE" }),
 
   addPdf: (data: {
     subjectId: string;
+    chapterId?: string;
     title: string;
     url: string;
     pageCount?: number;
@@ -252,6 +258,7 @@ export const adminApi = {
 
   addFlashcard: (data: {
     subjectId: string;
+    chapterId?: string;
     front: string;
     back: string;
     mnemonic?: string;
@@ -261,6 +268,7 @@ export const adminApi = {
 
   addMcq: (data: {
     subjectId: string;
+    chapterId?: string;
     questionText: string;
     options: { id: string; text: string }[];
     correctOptionId: string;
@@ -268,3 +276,4 @@ export const adminApi = {
   }) => request<AdminMcq>("/admin/mcqs", { method: "POST", body: JSON.stringify(data) }),
   deleteMcq: (id: string) => request<void>(`/admin/mcqs/${id}`, { method: "DELETE" }),
 };
+  
