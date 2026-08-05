@@ -3,12 +3,21 @@ import { FileText, Search, BookOpen } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { pdfsApi, subjectsApi } from "../lib/api";
 import type { PdfSummary, SubjectSummary } from "@workspace/api-zod";
+import { useLocation } from "wouter";
 
 export function Pdfs() {
+  const [, params] = useLocation();
   const [pdfs, setPdfs] = useState<PdfSummary[] | null>(null);
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [search, setSearch] = useState("");
+
+  const urlSubject = new URLSearchParams(params).get("subject") || "all";
+  const urlChapter = new URLSearchParams(params).get("chapter");
+
+  useEffect(() => {
+    setSubjectFilter(urlSubject);
+  }, [urlSubject]);
 
   useEffect(() => {
     pdfsApi.list().then(setPdfs).catch(() => setPdfs([]));
@@ -17,6 +26,7 @@ export function Pdfs() {
 
   const filtered = (pdfs ?? []).filter((p) => {
     if (subjectFilter !== "all" && p.subjectId !== subjectFilter) return false;
+    if (urlChapter && p.chapterId !== urlChapter) return false;
     if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
