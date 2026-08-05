@@ -256,24 +256,24 @@ function ActiveQuiz({
 
   return (
     <div className="h-full flex flex-col bg-slate-50 dark:bg-slate-900">
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
-        <div className="flex items-center gap-4">
-          <button onClick={onQuit} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-sm">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <button onClick={onQuit} className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
             <XCircle className="w-5 h-5" />
           </button>
-          <div>
-            <h2 className="font-bold text-slate-900 dark:text-slate-100">{attempt.subjectName}</h2>
+          <div className="min-w-0">
+            <h2 className="font-bold text-slate-900 dark:text-slate-100 truncate">{attempt.subjectName}</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Question {current + 1} of {attempt.questions.length}</p>
           </div>
         </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-full font-mono font-bold">
+        <div className="flex items-center gap-3 sm:gap-6 ml-auto">
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-full font-mono font-bold text-sm">
             <Clock className="w-4 h-4" /> {mm}:{ss}
           </div>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-4 sm:px-5 py-2 rounded-xl text-sm font-bold shadow-sm whitespace-nowrap"
           >
             {submitting ? "Submitting…" : "Submit Quiz"}
           </button>
@@ -287,55 +287,55 @@ function ActiveQuiz({
         />
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
-        <div className="flex-1 overflow-y-auto p-8 flex justify-center">
-          <div className="max-w-3xl w-full flex flex-col gap-8 pb-20">
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 shrink-0 rounded-2xl bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-lg">
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center">
+          <div className="max-w-3xl w-full flex flex-col gap-5 sm:gap-8 pb-20">
+            <div className="flex gap-3 sm:gap-4 items-start">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-2xl bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-base sm:text-lg">
                 {current + 1}
               </div>
-              <h3 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 leading-relaxed">{question.questionText}</h3>
+              <h3 className="text-lg sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 leading-relaxed">{question.questionText}</h3>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mt-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 mt-2 sm:mt-4">
               {question.options.map((opt) => {
                 const selected = answers[question.mcqId] === opt.id;
                 return (
                   <button
                     key={opt.id}
                     onClick={() => selectOption(opt.id)}
-                    className={`w-full text-left p-6 rounded-2xl border-2 transition-all group relative overflow-hidden ${
+                    className={`w-full text-left p-4 sm:p-6 rounded-2xl border-2 transition-all group relative overflow-hidden ${
                       selected ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-md" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300 dark:hover:border-blue-700"
                     }`}
                   >
                     {selected && <div className="absolute inset-y-0 left-0 w-1.5 bg-blue-600" />}
-                    <div className="flex items-center gap-4">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${selected ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm ${selected ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}>
                         {opt.id}
                       </div>
-                      <span className={`text-lg font-medium ${selected ? "text-blue-900 dark:text-blue-300" : "text-slate-700 dark:text-slate-300"}`}>{opt.text}</span>
+                      <span className={`text-sm sm:text-lg font-medium ${selected ? "text-blue-900 dark:text-blue-300" : "text-slate-700 dark:text-slate-300"}`}>{opt.text}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="flex items-center justify-between pt-8 border-t border-slate-200 dark:border-slate-700 mt-4">
+            <div className="flex items-center justify-between gap-3 pt-6 sm:pt-8 border-t border-slate-200 dark:border-slate-700 mt-2 sm:mt-4">
               <button
                 onClick={() => setCurrent((c) => Math.max(0, c - 1))}
                 disabled={current === 0}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-medium text-sm sm:text-base text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40"
               >
-                <ChevronLeft className="w-4 h-4" /> Previous
+                <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Previous</span>
               </button>
-              <div className="flex items-center gap-3">
-                <button onClick={skip} className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button onClick={skip} className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-medium text-sm sm:text-base text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700">
                   Skip <SkipForward className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setCurrent((c) => Math.min(attempt.questions.length - 1, c + 1))}
                   disabled={current === attempt.questions.length - 1}
-                  className="flex items-center gap-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white px-6 py-2.5 rounded-xl font-bold disabled:opacity-40"
+                  className="flex items-center gap-1.5 sm:gap-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-sm sm:text-base disabled:opacity-40"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -344,7 +344,7 @@ function ActiveQuiz({
           </div>
         </div>
 
-        <div className="w-72 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 p-6 flex flex-col shrink-0">
+        <div className="hidden lg:flex w-72 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 p-6 flex-col shrink-0">
           <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4">Question Navigator</h3>
           <div className="grid grid-cols-5 gap-2 mb-8">
             {attempt.questions.map((q, i) => {
