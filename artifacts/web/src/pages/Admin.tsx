@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { AppLayout } from "../components/layout/AppLayout";
 import { subjectsApi, adminApi, ApiError } from "../lib/api";
-import type { SubjectSummary } from "@workspace/api-zod";
+import type { SubjectSummary, Chapter } from "@workspace/api-zod";
 import type { AdminContent } from "../lib/api";
 import { uploadToCloudinary } from "../lib/cloudinary";
 
@@ -164,6 +164,7 @@ export function Admin() {
           {tab === "video" && (
             <VideoForm
               subjectId={subjectId}
+              chapters={content?.chapters || []}
               saving={saving}
               setSaving={setSaving}
               setStatus={setStatus}
@@ -173,6 +174,7 @@ export function Admin() {
           {tab === "notes" && (
             <PdfForm
               subjectId={subjectId}
+              chapters={content?.chapters || []}
               category="notes"
               saving={saving}
               setSaving={setSaving}
@@ -183,6 +185,7 @@ export function Admin() {
           {tab === "pyq" && (
             <PdfForm
               subjectId={subjectId}
+              chapters={content?.chapters || []}
               category="pyq"
               saving={saving}
               setSaving={setSaving}
@@ -193,6 +196,7 @@ export function Admin() {
           {tab === "flashcard" && (
             <FlashcardForm
               subjectId={subjectId}
+              chapters={content?.chapters || []}
               saving={saving}
               setSaving={setSaving}
               setStatus={setStatus}
@@ -202,6 +206,7 @@ export function Admin() {
           {tab === "mcq" && (
             <McqForm
               subjectId={subjectId}
+              chapters={content?.chapters || []}
               saving={saving}
               setSaving={setSaving}
               setStatus={setStatus}
@@ -391,12 +396,14 @@ function ChapterForm({
 
 function VideoForm({
   subjectId,
+  chapters,
   saving,
   setSaving,
   setStatus,
   onDone,
 }: {
   subjectId: string;
+  chapters: Chapter[];
   saving: boolean;
   setSaving: (b: boolean) => void;
   setStatus: Setter;
@@ -404,6 +411,7 @@ function VideoForm({
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [chapterId, setChapterId] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
 
   async function submit() {
@@ -415,12 +423,14 @@ function VideoForm({
     try {
       await adminApi.addVideo({
         subjectId,
+        chapterId: chapterId || undefined,
         title,
         url,
         durationMinutes: durationMinutes ? Number(durationMinutes) : 0,
       });
       setTitle("");
       setUrl("");
+      setChapterId("");
       setDurationMinutes("");
       setStatus({ type: "ok", text: "Video added." });
       onDone();
@@ -437,6 +447,17 @@ function VideoForm({
         <FieldLabel>Title</FieldLabel>
         <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="e.g. Cardiovascular System – Lecture 1" />
       </div>
+      {chapters.length > 0 && (
+        <div>
+          <FieldLabel>Chapter (optional)</FieldLabel>
+          <select value={chapterId} onChange={(e) => setChapterId(e.target.value)} className={inputClass}>
+            <option value="">-- Select a chapter --</option>
+            {chapters.map((ch) => (
+              <option key={ch.id} value={ch.id}>{ch.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <FileUploadField label="Video file" accept="video/*" url={url} setUrl={setUrl} />
       <div className="max-w-xs">
         <FieldLabel>Duration (minutes, optional)</FieldLabel>
@@ -462,6 +483,7 @@ function VideoForm({
 
 function PdfForm({
   subjectId,
+  chapters,
   category,
   saving,
   setSaving,
@@ -469,6 +491,7 @@ function PdfForm({
   onDone,
 }: {
   subjectId: string;
+  chapters: Chapter[];
   category: "notes" | "pyq";
   saving: boolean;
   setSaving: (b: boolean) => void;
@@ -477,6 +500,7 @@ function PdfForm({
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [chapterId, setChapterId] = useState("");
   const [pageCount, setPageCount] = useState("");
   const [year, setYear] = useState("");
 
@@ -489,6 +513,7 @@ function PdfForm({
     try {
       await adminApi.addPdf({
         subjectId,
+        chapterId: chapterId || undefined,
         title,
         url,
         pageCount: pageCount ? Number(pageCount) : 0,
@@ -497,6 +522,7 @@ function PdfForm({
       });
       setTitle("");
       setUrl("");
+      setChapterId("");
       setPageCount("");
       setYear("");
       setStatus({ type: "ok", text: category === "pyq" ? "PYQ added." : "PDF added." });
@@ -519,6 +545,17 @@ function PdfForm({
           placeholder={category === "pyq" ? "e.g. Anatomy PYQ 2023" : "e.g. Osteology Notes"}
         />
       </div>
+      {chapters.length > 0 && (
+        <div>
+          <FieldLabel>Chapter (optional)</FieldLabel>
+          <select value={chapterId} onChange={(e) => setChapterId(e.target.value)} className={inputClass}>
+            <option value="">-- Select a chapter --</option>
+            {chapters.map((ch) => (
+              <option key={ch.id} value={ch.id}>{ch.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <FileUploadField label="PDF file" accept="application/pdf" url={url} setUrl={setUrl} />
       <div className="flex gap-4 flex-wrap">
         {category === "pyq" && (
@@ -549,12 +586,14 @@ function PdfForm({
 
 function FlashcardForm({
   subjectId,
+  chapters,
   saving,
   setSaving,
   setStatus,
   onDone,
 }: {
   subjectId: string;
+  chapters: Chapter[];
   saving: boolean;
   setSaving: (b: boolean) => void;
   setStatus: Setter;
@@ -562,6 +601,7 @@ function FlashcardForm({
 }) {
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
+  const [chapterId, setChapterId] = useState("");
   const [mnemonic, setMnemonic] = useState("");
   const [reference, setReference] = useState("");
 
@@ -572,9 +612,10 @@ function FlashcardForm({
     }
     setSaving(true);
     try {
-      await adminApi.addFlashcard({ subjectId, front, back, mnemonic, reference });
+      await adminApi.addFlashcard({ subjectId, chapterId: chapterId || undefined, front, back, mnemonic, reference });
       setFront("");
       setBack("");
+      setChapterId("");
       setMnemonic("");
       setReference("");
       setStatus({ type: "ok", text: "Flashcard added." });
@@ -592,6 +633,17 @@ function FlashcardForm({
         <FieldLabel>Front (question)</FieldLabel>
         <textarea value={front} onChange={(e) => setFront(e.target.value)} rows={2} className={inputClass} />
       </div>
+      {chapters.length > 0 && (
+        <div>
+          <FieldLabel>Chapter (optional)</FieldLabel>
+          <select value={chapterId} onChange={(e) => setChapterId(e.target.value)} className={inputClass}>
+            <option value="">-- Select a chapter --</option>
+            {chapters.map((ch) => (
+              <option key={ch.id} value={ch.id}>{ch.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <div>
         <FieldLabel>Back (answer)</FieldLabel>
         <textarea value={back} onChange={(e) => setBack(e.target.value)} rows={2} className={inputClass} />
@@ -621,12 +673,14 @@ function FlashcardForm({
 
 function McqForm({
   subjectId,
+  chapters,
   saving,
   setSaving,
   setStatus,
   onDone,
 }: {
   subjectId: string;
+  chapters: Chapter[];
   saving: boolean;
   setSaving: (b: boolean) => void;
   setStatus: Setter;
@@ -635,6 +689,7 @@ function McqForm({
   const [questionText, setQuestionText] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctIndex, setCorrectIndex] = useState(0);
+  const [chapterId, setChapterId] = useState("");
   const [explanation, setExplanation] = useState("");
 
   async function submit() {
@@ -651,6 +706,7 @@ function McqForm({
         .filter((o) => o.text.trim());
       await adminApi.addMcq({
         subjectId,
+        chapterId: chapterId || undefined,
         questionText,
         options: opts,
         correctOptionId: ids[correctIndex]!,
@@ -659,6 +715,7 @@ function McqForm({
       setQuestionText("");
       setOptions(["", "", "", ""]);
       setCorrectIndex(0);
+      setChapterId("");
       setExplanation("");
       setStatus({ type: "ok", text: "MCQ added." });
       onDone();
@@ -675,6 +732,17 @@ function McqForm({
         <FieldLabel>Question</FieldLabel>
         <textarea value={questionText} onChange={(e) => setQuestionText(e.target.value)} rows={2} className={inputClass} />
       </div>
+      {chapters.length > 0 && (
+        <div>
+          <FieldLabel>Chapter (optional)</FieldLabel>
+          <select value={chapterId} onChange={(e) => setChapterId(e.target.value)} className={inputClass}>
+            <option value="">-- Select a chapter --</option>
+            {chapters.map((ch) => (
+              <option key={ch.id} value={ch.id}>{ch.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
       {options.map((opt, i) => (
         <div key={i} className="flex items-center gap-3">
           <input
