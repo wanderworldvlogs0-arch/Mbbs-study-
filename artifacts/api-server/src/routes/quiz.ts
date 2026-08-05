@@ -37,7 +37,7 @@ router.get("/quiz/subjects", async (_req, res) => {
 // Start a quiz: pick up to `count` random MCQs for a subject.
 router.post("/quiz/start", async (req, res) => {
   const userId = req.user!.id;
-  const { subjectId, count } = req.body as { subjectId?: string; count?: number };
+  const { subjectId, chapterId, count } = req.body as { subjectId?: string; chapterId?: string; count?: number };
 
   if (!subjectId) {
     res.status(400).json({ message: "subjectId is required" });
@@ -60,7 +60,7 @@ router.post("/quiz/start", async (req, res) => {
   const questions = await db
     .select()
     .from(mcqsTable)
-    .where(eq(mcqsTable.subjectId, subjectId))
+    .where(chapterId ? and(eq(mcqsTable.subjectId, subjectId), eq(mcqsTable.chapterId, chapterId)) : eq(mcqsTable.subjectId, subjectId))
     .orderBy(sql`random()`)
     .limit(limit);
 
