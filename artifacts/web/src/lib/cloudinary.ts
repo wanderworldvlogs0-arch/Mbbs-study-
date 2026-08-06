@@ -3,8 +3,8 @@
 // See README.md > "Setting up file uploads (Cloudinary)" for
 // the exact steps.
 // ============================================================
-export const CLOUDINARY_CLOUD_NAME = "PASTE_YOUR_CLOUD_NAME";
-export const CLOUDINARY_UPLOAD_PRESET = "PASTE_YOUR_UPLOAD_PRESET";
+export const CLOUDINARY_CLOUD_NAME = "pxzrsreo";
+export const CLOUDINARY_UPLOAD_PRESET = "medmaster_upload";
 
 /**
  * Uploads a file straight from the browser to Cloudinary (no backend
