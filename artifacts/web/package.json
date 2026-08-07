@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
+    "clsx": "catalog:",
+    "input-otp": "^1.4.2",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "tailwind-merge": "catalog:",
     "wouter": "catalog:"
   },
   "devDependencies": {
