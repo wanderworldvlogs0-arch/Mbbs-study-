@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, usersTable, sessionsTable } from "@workspace/db";
+import { eq, and, gt, desc } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
+import { db, usersTable, sessionsTable, passwordResetsTable } from "@workspace/db";
 import { SignUpBody, SignInBody, AuthUserSchema } from "@workspace/api-zod";
 import {
   hashPassword,
@@ -10,9 +11,23 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_TTL_MS,
 } from "../lib/auth";
+import { generateOtp, hashOtp, verifyOtp, sendOtpEmail } from "../lib/email";
 import { requireAuth } from "../middlewares/require-auth";
 
 const router: IRouter = Router();
+
+const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_OTP_ATTEMPTS = 5;
+
+// Applies to all three password-reset endpoints — keeps someone from
+// hammering the mail server or brute-forcing an OTP.
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many attempts. Please try again later." },
+});
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -199,6 +214,163 @@ router.put("/auth/change-password", requireAuth, async (req, res) => {
 });
 router.get("/auth/me", requireAuth, (req, res) => {
   res.json(AuthUserSchema.parse(req.user));
+});
+
+router.post("/auth/forgot-password", passwordResetLimiter, async (req, res) => {
+  const email =
+    typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  // Always return the same response whether or not the account exists —
+  // otherwise this endpoint could be used to check which emails are
+  // registered.
+  if (user) {
+    const otp = generateOtp();
+
+    await db.insert(passwordResetsTable).values({
+      userId: user.id,
+      otpHash: hashOtp(otp),
+      expiresAt: new Date(Date.now() + OTP_TTL_MS),
+    });
+
+    try {
+      await sendOtpEmail(user.email, otp);
+    } catch (err) {
+      req.log.error({ err }, "Failed to send password reset email");
+    }
+  }
+
+  res
+    .status(200)
+    .json({ message: "If that email is registered, a code has been sent." });
+});
+
+router.post("/auth/verify-otp", passwordResetLimiter, async (req, res) => {
+  const email =
+    typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const otp = typeof req.body?.otp === "string" ? req.body.otp.trim() : "";
+
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and code are required" });
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired code" });
+  }
+
+  const [reset] = await db
+    .select()
+    .from(passwordResetsTable)
+    .where(
+      and(
+        eq(passwordResetsTable.userId, user.id),
+        eq(passwordResetsTable.consumed, false),
+        gt(passwordResetsTable.expiresAt, new Date()),
+      ),
+    )
+    .orderBy(desc(passwordResetsTable.createdAt))
+    .limit(1);
+
+  if (!reset || reset.attempts >= MAX_OTP_ATTEMPTS) {
+    return res.status(400).json({ message: "Invalid or expired code" });
+  }
+
+  if (!verifyOtp(otp, reset.otpHash)) {
+    await db
+      .update(passwordResetsTable)
+      .set({ attempts: reset.attempts + 1 })
+      .where(eq(passwordResetsTable.id, reset.id));
+
+    return res.status(400).json({ message: "Invalid or expired code" });
+  }
+
+  // Not marked consumed here — the same OTP is presented again to
+  // /auth/reset-password, which does the actual consuming. This endpoint
+  // just lets the UI confirm the code before showing the new-password step.
+  res.status(200).json({ message: "Code verified" });
+});
+
+router.post("/auth/reset-password", passwordResetLimiter, async (req, res) => {
+  const email =
+    typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const otp = typeof req.body?.otp === "string" ? req.body.otp.trim() : "";
+  const newPassword =
+    typeof req.body?.newPassword === "string" ? req.body.newPassword : "";
+
+  if (!email || !otp || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Email, code, and new password are required" });
+  }
+
+  if (newPassword.length < 8) {
+    return res
+      .status(400)
+      .json({ message: "New password must be at least 8 characters" });
+  }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid or expired code" });
+  }
+
+  const [reset] = await db
+    .select()
+    .from(passwordResetsTable)
+    .where(
+      and(
+        eq(passwordResetsTable.userId, user.id),
+        eq(passwordResetsTable.consumed, false),
+        gt(passwordResetsTable.expiresAt, new Date()),
+      ),
+    )
+    .orderBy(desc(passwordResetsTable.createdAt))
+    .limit(1);
+
+  if (!reset || reset.attempts >= MAX_OTP_ATTEMPTS || !verifyOtp(otp, reset.otpHash)) {
+    if (reset) {
+      await db
+        .update(passwordResetsTable)
+        .set({ attempts: reset.attempts + 1 })
+        .where(eq(passwordResetsTable.id, reset.id));
+    }
+
+    return res.status(400).json({ message: "Invalid or expired code" });
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await db
+    .update(usersTable)
+    .set({ passwordHash })
+    .where(eq(usersTable.id, user.id));
+
+  await db
+    .update(passwordResetsTable)
+    .set({ consumed: true })
+    .where(eq(passwordResetsTable.id, reset.id));
+
+  res.status(200).json({ message: "Password reset successfully" });
 });
 
 export default router;
