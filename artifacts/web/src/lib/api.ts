@@ -1,6 +1,10 @@
 import type {
   AuthUser,
   ErrorResponse,
+  ForgotPasswordRequest,
+  VerifyOtpRequest,
+  ResetPasswordRequest,
+  MessageResponse,
   SubjectSummary,
   SubjectDetail,
   ChapterProgress,
@@ -74,6 +78,24 @@ export const authApi = {
   logout: () => request<void>("/auth/logout", { method: "POST" }),
 
   me: () => request<AuthUser>("/auth/me"),
+
+  forgotPassword: (data: ForgotPasswordRequest) =>
+    request<MessageResponse>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  verifyOtp: (data: VerifyOtpRequest) =>
+    request<MessageResponse>("/auth/verify-otp", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  resetPassword: (data: ResetPasswordRequest) =>
+    request<MessageResponse>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   updateProfile: (data: {
     name: string;
