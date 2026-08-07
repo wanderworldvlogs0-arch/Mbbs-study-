@@ -101,6 +101,9 @@ export function SignIn() {
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="text-sm font-semibold text-slate-700">Password</label>
+                  <Link href="/forgot-password" className="text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer">
+                    Forgot password?
+                  </Link>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ width: 18, height: 18 }} />
