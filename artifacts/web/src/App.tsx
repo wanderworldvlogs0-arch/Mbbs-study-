@@ -3,6 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { VerifyOtp } from "./pages/VerifyOtp";
+import { ResetPassword } from "./pages/ResetPassword";
 import { Dashboard } from "./pages/Dashboard";
 import { Subjects } from "./pages/Subjects";
 import { Videos } from "./pages/Videos";
@@ -41,6 +44,9 @@ function App() {
         <Route path="/" component={() => <Redirect to="/signin" />} />
         <Route path="/signin" component={SignIn} />
         <Route path="/signup" component={SignUp} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/verify-otp" component={VerifyOtp} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route path="/dashboard">
           <ProtectedRoute>
             <Dashboard />
