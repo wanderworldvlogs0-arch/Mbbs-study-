@@ -29,7 +29,13 @@ app.use(
     },
   }),
 );
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigin = process.env.FRONTEND_URL;
+app.use(
+  cors({
+    origin: allowedOrigin ? allowedOrigin.split(",") : true,
+    credentials: true,
+  }),
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
