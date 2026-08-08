@@ -11,7 +11,9 @@ services:
         fromDatabase:
           name: medmaster-ai-db
           property: connectionString
-      - key: RESEND_API_KEY
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_EMAIL
         sync: false
       - key: FRONTEND_URL
         sync: false
