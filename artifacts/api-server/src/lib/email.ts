@@ -1,5 +1,5 @@
 import { randomInt, createHash } from "crypto";
-import { Resend } from "resend";
+import * as brevo from "@getbrevo/brevo";
 
 const OTP_LENGTH = 6;
 
@@ -27,41 +27,47 @@ export function verifyOtp(otp: string, storedHash: string): boolean {
   return hashOtp(otp) === storedHash;
 }
 
-let resend: Resend | undefined;
+let apiInstance: brevo.TransactionalEmailsApi | undefined;
 
-function getResendClient(): Resend {
-  if (resend) return resend;
+function ensureInitialized(): brevo.TransactionalEmailsApi {
+  if (apiInstance) return apiInstance;
 
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = process.env.BREVO_API_KEY;
 
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not set");
+    throw new Error("BREVO_API_KEY is not set");
   }
 
-  resend = new Resend(apiKey);
-  return resend;
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+
+  return apiInstance;
 }
 
 /**
  * Sends the password-reset OTP to the user's email. Kept intentionally
  * simple (plain text + minimal HTML) — no template engine dependency.
  *
- * Uses Resend's "onboarding@resend.dev" sender, which works without
- * verifying a custom domain — but on Resend's free tier that sender can
- * only deliver to the email address the Resend account itself was signed
- * up with. Sending to other recipients requires verifying a domain in the
- * Resend dashboard and sending "from" that domain instead.
+ * Uses Brevo's HTTP API (not SMTP) — Render's free tier blocks
+ * outbound SMTP ports, so an HTTP-based provider is required.
+ *
+ * `BREVO_FROM_EMAIL` should ideally be a verified sender in Brevo
+ * dashboard under Senders, Domains & Dedicated IPs → Senders.
  */
 export async function sendOtpEmail(to: string, otp: string): Promise<void> {
-  const { error } = await getResendClient().emails.send({
-    from: "Dr.tragicMFA <onboarding@resend.dev>",
-    to,
-    subject: "Your password reset code",
-    text: `Your password reset code is ${otp}. It expires in 10 minutes. If you didn't request this, you can ignore this email.`,
-    html: `<p>Your password reset code is <strong>${otp}</strong>.</p><p>It expires in 10 minutes. If you didn't request this, you can ignore this email.</p>`,
-  });
+  const api = ensureInitialized();
 
-  if (error) {
-    throw new Error(`Failed to send OTP email: ${error.message}`);
+  const from = process.env.BREVO_FROM_EMAIL;
+  if (!from) {
+    throw new Error("BREVO_FROM_EMAIL is not set");
   }
+
+  const message = new brevo.SendSmtpEmail();
+  message.sender = { email: from };
+  message.to = [{ email: to }];
+  message.subject = "Your password reset code";
+  message.textContent = `Your password reset code is ${otp}. It expires in 10 minutes. If you didn't request this, you can ignore this email.`;
+  message.htmlContent = `<p>Your password reset code is <strong>${otp}</strong>.</p><p>It expires in 10 minutes. If you didn't request this, you can ignore this email.</p>`;
+
+  await api.sendTransacEmail(message);
 }
