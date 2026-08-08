@@ -132,11 +132,35 @@ router.post("/auth/signin", signInRateLimit, async (req, res) => {
     .where(eq(usersTable.email, email))
     .limit(1);
 
+  if (user?.lockedUntil && user.lockedUntil > new Date()) {
+    return res.status(423).json({
+      message: "Account temporarily locked due to too many failed attempts. Try again later.",
+    });
+  }
+
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    if (user) {
+      const attempts = user.failedLoginAttempts + 1;
+      await db
+        .update(usersTable)
+        .set({
+          failedLoginAttempts: attempts,
+          lockedUntil:
+            attempts >= MAX_FAILED_ATTEMPTS
+              ? new Date(Date.now() + LOCKOUT_DURATION_MS)
+              : null,
+        })
+        .where(eq(usersTable.id, user.id));
+    }
     return res
       .status(401)
       .json({ message: "Invalid email or password" });
   }
+
+  await db
+    .update(usersTable)
+    .set({ failedLoginAttempts: 0, lockedUntil: null })
+    .where(eq(usersTable.id, user.id));
 
   await createSessionAndRespond(res, user, 200);
 });
