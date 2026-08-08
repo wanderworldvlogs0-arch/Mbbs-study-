@@ -13,6 +13,7 @@ import {
 } from "../lib/auth";
 import { generateOtp, hashOtp, verifyOtp, sendOtpEmail } from "../lib/email";
 import { requireAuth } from "../middlewares/require-auth";
+import { signInRateLimit, signUpRateLimit } from "../middlewares/rate-limit";
 
 const router: IRouter = Router();
 
@@ -73,7 +74,7 @@ async function createSessionAndRespond(
   );
 }
 
-router.post("/auth/signup", async (req, res) => {
+router.post("/auth/signup", signUpRateLimit, async (req, res) => {
   const parsed = SignUpBody.safeParse(req.body);
 
   if (!parsed.success) {
@@ -115,7 +116,7 @@ router.post("/auth/signup", async (req, res) => {
   await createSessionAndRespond(res, user, 201);
 });
 
-router.post("/auth/signin", async (req, res) => {
+router.post("/auth/signin", signInRateLimit, async (req, res) => {
   const parsed = SignInBody.safeParse(req.body);
 
   if (!parsed.success) {
