@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import fs from "fs";
@@ -30,6 +31,7 @@ app.use(
   }),
 );
 const allowedOrigin = process.env.FRONTEND_URL;
+app.use(helmet());
 app.use(
   cors({
     origin: allowedOrigin ? allowedOrigin.split(",") : true,
