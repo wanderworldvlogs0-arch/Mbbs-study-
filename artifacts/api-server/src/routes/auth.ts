@@ -211,6 +211,9 @@ router.put("/auth/change-password", requireAuth, async (req, res) => {
     .set({ passwordHash: newPasswordHash })
     .where(eq(usersTable.id, req.user.id));
 
+  await db.delete(sessionsTable).where(eq(sessionsTable.userId, req.user.id));
+  res.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
+
   res.status(200).json({ message: "Password updated successfully" });
 });
 router.get("/auth/me", requireAuth, (req, res) => {
