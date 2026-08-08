@@ -29,7 +29,8 @@ const passwordResetLimiter = rateLimit({
   legacyHeaders: false,
   message: { message: "Too many attempts. Please try again later." },
 });
-
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
