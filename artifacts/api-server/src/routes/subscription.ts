@@ -10,7 +10,10 @@ const VALID_PLANS = new Set(["free", "pro", "elite"]);
 
 // Current plan for the signed-in user.
 router.get("/subscription", (req, res) => {
-  res.json({ plan: req.user!.plan });
+  res.json({
+    plan: req.user!.plan,
+    subscriptionExpiresAt: req.user!.subscriptionExpiresAt,
+  });
 });
 
 // Select a plan. There's no payment gateway wired up yet, so this just
@@ -18,20 +21,32 @@ router.get("/subscription", (req, res) => {
 // real checkout/billing flow.
 router.post("/subscription/select", async (req, res) => {
   const userId = req.user!.id;
-  const { planId } = req.body as { planId?: string };
+  const { planId, billing } = req.body as {
+    planId?: string;
+    billing?: "monthly" | "yearly";
+  };
 
   if (!planId || !VALID_PLANS.has(planId)) {
     res.status(400).json({ message: "planId must be one of free, pro, elite" });
     return;
   }
 
+  const durationDays = billing === "yearly" ? 365 : 30;
+  const subscriptionExpiresAt =
+    planId === "free"
+      ? null
+      : new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+
   const [updated] = await db
     .update(usersTable)
-    .set({ plan: planId })
+    .set({ plan: planId, subscriptionExpiresAt })
     .where(eq(usersTable.id, userId))
-    .returning({ plan: usersTable.plan });
+    .returning({
+      plan: usersTable.plan,
+      subscriptionExpiresAt: usersTable.subscriptionExpiresAt,
+    });
 
-  res.json({ plan: updated!.plan });
+  res.json({ plan: updated!.plan, subscriptionExpiresAt: updated!.subscriptionExpiresAt });
 });
 
 export default router;
