@@ -38,15 +38,23 @@ export function Topbar({ pageTitle, streakCount, onMenuClick }: TopbarProps) {
           <span>{streakCount}</span>
         </div>
 
-        <button className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative flex-shrink-0">
+        <button
+          onClick={() => navigate("/notifications")}
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative flex-shrink-0"
+        >
           <Bell className="w-4.5 h-4.5" />
         </button>
 
         <div
-          className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold cursor-pointer flex-shrink-0"
+          onClick={() => navigate("/profile")}
+          className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold cursor-pointer flex-shrink-0 overflow-hidden"
           title={user?.name}
         >
-          {user?.name?.[0]?.toUpperCase() ?? "?"}
+          {user?.profilePhoto ? (
+            <img src={user.profilePhoto} alt={user?.name ?? "Profile"} className="w-full h-full object-cover" />
+          ) : (
+            user?.name?.[0]?.toUpperCase() ?? "?"
+          )}
         </div>
 
         <button
