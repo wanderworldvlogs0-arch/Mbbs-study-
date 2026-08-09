@@ -40,6 +40,7 @@ export const dailyActivityTable = pgTable(
     secondsStudied: integer("seconds_studied").notNull().default(0),
     chaptersDone: integer("chapters_done").notNull().default(0),
     mcqsDone: integer("mcqs_done").notNull().default(0),
+    flashcardsDone: integer("flashcards_done").notNull().default(0),
     videosDone: integer("videos_done").notNull().default(0),
   });
 
