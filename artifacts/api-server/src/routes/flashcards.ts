@@ -1,13 +1,14 @@
 import { Router, type IRouter } from "express";
-import { eq, and, sql, lte } from "drizzle-orm";
+import { eq, and, sql, lte, gte } from "drizzle-orm";
 import {
   db,
   subjectsTable,
   flashcardsTable,
   userFlashcardProgressTable,
+  dailyActivityTable,
 } from "@workspace/db";
 import { requireAuth } from "../middlewares/require-auth";
-import { todayDateString } from "../lib/dashboard";
+import { todayDateString, monthStartDateString } from "../lib/dashboard";
 
 const router: IRouter = Router();
 router.use(requireAuth);
@@ -24,6 +25,7 @@ const RATING_INTERVAL_DAYS: Record<string, number> = {
   good: 3,
   easy: 7,
 };
+const FREE_PLAN_MONTHLY_FLASHCARD_LIMIT = 5;
 
 router.get("/flashcards/subjects", async (req, res) => {
   const userId = req.user!.id;
@@ -137,6 +139,27 @@ router.put("/flashcards/:flashcardId/rate", async (req, res) => {
     return;
   }
 
+  if (req.user!.plan === "free") {
+    const [usage] = await db
+      .select({
+        total: sql<number>`coalesce(sum(${dailyActivityTable.flashcardsDone}), 0)`.mapWith(Number),
+      })
+      .from(dailyActivityTable)
+      .where(
+        and(
+          eq(dailyActivityTable.userId, userId),
+          gte(dailyActivityTable.date, monthStartDateString()),
+        ),
+      );
+
+    if ((usage?.total ?? 0) >= FREE_PLAN_MONTHLY_FLASHCARD_LIMIT) {
+      res.status(403).json({
+        message: "You've used all 5 free flashcards this month. Upgrade to Pro for unlimited flashcards.",
+      });
+      return;
+    }
+  }
+
   const masteryPercent = RATING_MASTERY[rating]!;
   const intervalDays = RATING_INTERVAL_DAYS[rating]!;
 
@@ -157,6 +180,15 @@ router.put("/flashcards/:flashcardId/rate", async (req, res) => {
         reviewCount: sql`${userFlashcardProgressTable.reviewCount} + 1`,
         updatedAt: new Date(),
       },
+    });
+
+  const today = todayDateString();
+  await db
+    .insert(dailyActivityTable)
+    .values({ userId, date: today, flashcardsDone: 1 })
+    .onConflictDoUpdate({
+      target: [dailyActivityTable.userId, dailyActivityTable.date],
+      set: { flashcardsDone: sql`${dailyActivityTable.flashcardsDone} + 1` },
     });
 
   res.json({ ok: true });
