@@ -97,6 +97,7 @@ export function Subscription() {
   const [, navigate] = useLocation();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [activePlan, setActivePlan] = useState<SubscriptionPlanId | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -105,7 +106,10 @@ export function Subscription() {
   useEffect(() => {
     subscriptionApi
       .status()
-      .then((s) => setActivePlan(s.plan))
+      .then((s) => {
+        setActivePlan(s.plan);
+        setExpiresAt(s.subscriptionExpiresAt);
+      })
       .catch(() => setActivePlan("free"));
   }, []);
 
@@ -114,8 +118,9 @@ export function Subscription() {
     setSelectedPlan(planId);
     setError(null);
     try {
-      const s = await subscriptionApi.select(planId);
+      const s = await subscriptionApi.select(planId, billing);
       setActivePlan(s.plan);
+      setExpiresAt(s.subscriptionExpiresAt);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 4000);
     } catch (e) {
@@ -170,7 +175,7 @@ export function Subscription() {
             Choose your study plan
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            Invest in your future. Dr.tragicMFA's plans are designed to take you from Day 1 to Distinction.
+            Invest in your future. MedMaster AI's plans are designed to take you from Day 1 to Distinction.
           </p>
 
           <div className="flex items-center justify-center gap-3 mt-7">
@@ -214,6 +219,11 @@ export function Subscription() {
                   <div className="absolute top-4 right-4 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[11px] font-bold px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800/50">
                     Current plan
                   </div>
+                )}
+                {isActive && expiresAt && (
+                  <p className="absolute top-11 right-4 text-[10px] text-slate-400 dark:text-slate-500">
+                    Renews on {new Date(expiresAt).toLocaleDateString()}
+                  </p>
                 )}
 
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${plan.iconBg}`}>
