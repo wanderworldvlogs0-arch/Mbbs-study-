@@ -198,10 +198,10 @@ export const doubtSolverApi = {
 
 export const subscriptionApi = {
   status: () => request<SubscriptionStatus>("/subscription"),
-  select: (planId: SubscriptionPlanId) =>
+  select: (planId: SubscriptionPlanId, billing: "monthly" | "yearly") =>
     request<SubscriptionStatus>("/subscription/select", {
       method: "POST",
-      body: JSON.stringify({ planId }),
+      body: JSON.stringify({ planId, billing }),
     }),
 };
 
