@@ -175,7 +175,7 @@ export function Subscription() {
             Choose your study plan
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            Invest in your future. MedMaster AI's plans are designed to take you from Day 1 to Distinction.
+            Invest in your future. Dr.tragicMFA's plans are designed to take you from Day 1 to Distinction.
           </p>
 
           <div className="flex items-center justify-center gap-3 mt-7">
