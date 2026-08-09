@@ -39,6 +39,7 @@ export async function attachUser(
       mobileNumber: usersTable.mobileNumber,
       profilePhoto: usersTable.profilePhoto,
       plan: usersTable.plan,
+      subscriptionExpiresAt: usersTable.subscriptionExpiresAt,
       createdAt: usersTable.createdAt,
     })
     .from(sessionsTable)
@@ -50,8 +51,21 @@ export async function attachUser(
       ),
     )
     .limit(1);
-
-  req.user = rows[0];
+const found = rows[0];
+  if (
+    found &&
+    found.plan !== "free" &&
+    found.subscriptionExpiresAt &&
+    found.subscriptionExpiresAt < new Date()
+  ) {
+    await db
+      .update(usersTable)
+      .set({ plan: "free", subscriptionExpiresAt: null })
+      .where(eq(usersTable.id, found.id));
+    found.plan = "free";
+    found.subscriptionExpiresAt = null;
+  }
+  req.user = found;
   next();
 }
 
