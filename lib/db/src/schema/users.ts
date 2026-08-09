@@ -11,6 +11,7 @@ export const usersTable = pgTable("users", {
   mobileNumber: text("mobile_number"), // <-- নতুন
   profilePhoto: text("profile_photo"), // base64 image data, <-- নতুন
   plan: text("plan").notNull().default("free"), // "free" | "pro" | "elite"
+  subscriptionExpiresAt: timestamp("subscription_expires_at", { withTimezone: true }),
   failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
 
