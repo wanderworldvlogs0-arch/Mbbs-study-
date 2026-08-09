@@ -11,6 +11,7 @@
     "push": "drizzle-kit push --config ./drizzle.config.ts --verbose",
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts --verbose",
     "fix-constraint": "tsx src/fix-constraint.ts",
+    "ensure-columns": "tsx src/ensure-columns.ts",
     "seed": "tsx src/seed.ts"
   },
   "dependencies": {
