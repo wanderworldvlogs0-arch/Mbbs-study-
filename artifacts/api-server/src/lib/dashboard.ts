@@ -20,3 +20,9 @@ export function last7Days(): string[] {
   }
   return days;
 }
+
+/** First day of the current calendar month (UTC) as YYYY-MM-DD. */
+export function monthStartDateString(): string {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
