@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, sql, desc, isNotNull, inArray } from "drizzle-orm";
+import { eq, and, sql, desc, isNotNull, inArray, gte } from "drizzle-orm";
 import {
   db,
   subjectsTable,
@@ -10,12 +10,13 @@ import {
   dailyActivityTable,
 } from "@workspace/db";
 import { requireAuth } from "../middlewares/require-auth";
-import { todayDateString } from "../lib/dashboard";
+import { todayDateString, monthStartDateString } from "../lib/dashboard";
 
 const router: IRouter = Router();
 router.use(requireAuth);
 
 const PASS_THRESHOLD = 50; // percent
+const FREE_PLAN_MONTHLY_MCQ_LIMIT = 20;
 
 // List subjects that actually have MCQs, with counts.
 router.get("/quiz/subjects", async (_req, res) => {
@@ -42,6 +43,27 @@ router.post("/quiz/start", async (req, res) => {
   if (!subjectId) {
     res.status(400).json({ message: "subjectId is required" });
     return;
+  }
+
+  if (req.user!.plan === "free") {
+    const [usage] = await db
+      .select({
+        total: sql<number>`coalesce(sum(${dailyActivityTable.mcqsDone}), 0)`.mapWith(Number),
+      })
+      .from(dailyActivityTable)
+      .where(
+        and(
+          eq(dailyActivityTable.userId, userId),
+          gte(dailyActivityTable.date, monthStartDateString()),
+        ),
+      );
+
+    if ((usage?.total ?? 0) >= FREE_PLAN_MONTHLY_MCQ_LIMIT) {
+      res.status(403).json({
+        message: "You've used all 20 free MCQs this month. Upgrade to Pro for unlimited MCQs.",
+      });
+      return;
+    }
   }
 
   const [subject] = await db
